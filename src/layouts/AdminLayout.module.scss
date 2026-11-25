@@ -1,0 +1,79 @@
+.shell {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  min-height: 100dvh;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.content {
+  flex: 1;
+  padding: 1rem 1.25rem 5.5rem;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.rail {
+  display: none;
+  border-right: 1px solid color-mix(in srgb, var(--md-sys-color-outline) 30%, transparent);
+}
+
+.topActions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.userBadge {
+  font-size: 0.875rem;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.bottomNav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-around;
+  gap: 0.25rem;
+  padding: 0.35rem 0.5rem env(safe-area-inset-bottom);
+  background: var(--md-sys-color-surface-container);
+  border-top: 1px solid color-mix(in srgb, var(--md-sys-color-outline) 35%, transparent);
+
+  a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.1rem;
+    font-size: 0.65rem;
+    padding: 0.35rem 0.25rem;
+    border-radius: 999px;
+    min-width: 3.5rem;
+    color: var(--md-sys-color-on-surface-variant);
+  }
+}
+
+.bottomActive {
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+}
+
+@media (min-width: 900px) {
+  .rail {
+    display: block;
+  }
+
+  .bottomNav {
+    display: none;
+  }
+
+  .content {
+    padding-bottom: 1.5rem;
+  }
+}

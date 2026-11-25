@@ -1,0 +1,45 @@
+.page {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  background:
+    radial-gradient(120% 80% at 0% 0%, color-mix(in srgb, var(--md-sys-color-primary) 12%, transparent), transparent),
+    var(--md-sys-color-surface);
+}
+
+.card {
+  width: min(420px, 100%);
+  padding: 2rem 1.75rem;
+  border-radius: 28px;
+  background: var(--md-sys-color-surface-container-high);
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--md-sys-color-shadow) 25%, transparent);
+}
+
+.title {
+  margin: 0 0 0.35rem;
+  font-size: 1.75rem;
+  font-weight: 500;
+}
+
+.subtitle {
+  margin: 0 0 1.5rem;
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: 0.95rem;
+}
+
+.form {
+  display: grid;
+  gap: 1rem;
+}
+
+.error {
+  margin: 0;
+  color: var(--md-sys-color-error);
+  font-size: 0.875rem;
+}
+
+.submit {
+  justify-self: start;
+  min-width: 8rem;
+}
