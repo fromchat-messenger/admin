@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Area,
   AreaChart,
@@ -40,11 +40,33 @@ function emptyCpuWindow(): (number | null)[] {
 
 function mergeRingIntoWindow(ring: number[]): (number | null)[] {
   const slots = emptyCpuWindow();
-  const start = Math.max(0, CPU_WINDOW - ring.length);
-  ring.forEach((value, index) => {
-    slots[start + index] = value;
+  const count = Math.min(ring.length, CPU_WINDOW);
+  ring.slice(-count).forEach((value, index) => {
+    slots[CPU_WINDOW - count + index] = value;
   });
   return slots;
+}
+
+function pushCpuSample(prev: (number | null)[], sample: number): (number | null)[] {
+  const filled = prev.filter((value) => value != null).length;
+  if (filled < CPU_WINDOW) {
+    const next = [...prev];
+    next[CPU_WINDOW - filled - 1] = sample;
+    return next;
+  }
+  return [...prev.slice(1), sample];
+}
+
+function bumpChartSlide(layer: HTMLDivElement | null) {
+  if (!layer) {
+    return;
+  }
+  const step = layer.clientWidth / CPU_WINDOW;
+  layer.style.transition = "none";
+  layer.style.transform = `translateX(${step}px)`;
+  void layer.offsetHeight;
+  layer.style.transition = "transform 1s linear";
+  layer.style.transform = "translateX(0)";
 }
 
 export function DashboardPage() {
@@ -55,6 +77,11 @@ export function DashboardPage() {
   const [host, setHost] = useState({ cpu: 0, mem: 0, disk: 0 });
   const [cpuSlots, setCpuSlots] = useState<(number | null)[]>(emptyCpuWindow);
   const [totals, setTotals] = useState<Record<string, number>>({});
+  const chartSlideRef = useRef<HTMLDivElement>(null);
+
+  const nudgeCpuChart = useCallback(() => {
+    bumpChartSlide(chartSlideRef.current);
+  }, []);
 
   const displayName = useMemo(() => {
     const name = session?.username ?? "admin";
@@ -99,7 +126,8 @@ export function DashboardPage() {
         });
       }
       if (data.type === "tick" && data.host) {
-        setCpuSlots((prev) => [...prev.slice(1), data.host!.cpu_percent]);
+        nudgeCpuChart();
+        setCpuSlots((prev) => pushCpuSample(prev, data.host!.cpu_percent));
       } else if (data.cpu_ring?.length) {
         setCpuSlots(mergeRingIntoWindow(data.cpu_ring.map((point) => point.cpu_percent)));
       }
@@ -108,7 +136,7 @@ export function DashboardPage() {
       }
     };
     return () => socket.close();
-  }, [session?.token]);
+  }, [session?.token, nudgeCpuChart]);
 
   const chartData = useMemo(
     () => cpuSlots.map((cpu, index) => ({ index, cpu })),
@@ -172,7 +200,8 @@ export function DashboardPage() {
           </div>
         </div>
         <div className={styles.chartWrap}>
-          <ResponsiveContainer width="100%" height={280}>
+          <div ref={chartSlideRef} className={styles.chartSlide}>
+            <ResponsiveContainer width="100%" height={280}>
             <AreaChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id="cpuFill" x1="0" y1="0" x2="0" y2="1">
@@ -214,7 +243,8 @@ export function DashboardPage() {
                 activeDot={{ r: 4 }}
               />
             </AreaChart>
-          </ResponsiveContainer>
+            </ResponsiveContainer>
+          </div>
         </div>
       </section>
     </div>

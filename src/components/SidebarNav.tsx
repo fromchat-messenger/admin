@@ -12,7 +12,8 @@ type SidebarNavProps = {
 
 export function SidebarNav({ label, items, activePath }: SidebarNavProps) {
   const navigate = useNavigate();
-  const active = items.find((item) => activePath.startsWith(item.to))?.to ?? null;
+  const active =
+    items.find((item) => activePath === item.to || activePath.startsWith(`${item.to}/`))?.to ?? null;
 
   return (
     <section className={styles.group} aria-labelledby={`nav-${label}`}>
@@ -20,11 +21,12 @@ export function SidebarNav({ label, items, activePath }: SidebarNavProps) {
         {label}
       </h2>
       <List
+        className={styles.list}
         selectionMode="single"
-        variant="segmented"
+        variant="standard"
         value={active}
         onChange={(_event, value) => {
-          if (value) {
+          if (typeof value === "string") {
             navigate(value);
           }
         }}
@@ -40,7 +42,6 @@ export function SidebarNav({ label, items, activePath }: SidebarNavProps) {
                 {item.icon}
               </span>
             }
-            onClick={() => navigate(item.to)}
           />
         ))}
       </List>

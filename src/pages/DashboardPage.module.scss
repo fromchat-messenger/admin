@@ -59,4 +59,10 @@
 .chartWrap {
   width: 100%;
   min-height: 280px;
+  overflow: hidden;
+}
+
+.chartSlide {
+  width: 100%;
+  will-change: transform;
 }

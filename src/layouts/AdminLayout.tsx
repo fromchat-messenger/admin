@@ -80,6 +80,13 @@ export function AdminLayout() {
               <span className={styles.sidebarUserName}>{session?.username}</span>
               <span className={styles.sidebarUserRole}>Administrator</span>
             </div>
+            <IconButton
+              className={styles.sidebarLogout}
+              variant="tonal"
+              icon={<span className="material-symbols-rounded">logout</span>}
+              aria-label="Sign out"
+              onClick={logout}
+            />
           </motion.div>
         </div>
       </aside>
@@ -97,22 +104,11 @@ export function AdminLayout() {
           >
             <IconButton
               variant="tonal"
-              icon={<span className="material-symbols-rounded">notifications</span>}
-              aria-label="Notifications"
-            />
-            <IconButton
-              variant="tonal"
               icon={
                 <span className="material-symbols-rounded">{mode === "dark" ? "light_mode" : "dark_mode"}</span>
               }
               aria-label={mode === "dark" ? "Switch to light theme" : "Switch to dark theme"}
               onClick={toggleMode}
-            />
-            <IconButton
-              variant="tonal"
-              icon={<span className="material-symbols-rounded">logout</span>}
-              aria-label="Sign out"
-              onClick={logout}
             />
           </motion.div>
         </header>

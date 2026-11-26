@@ -14,23 +14,35 @@ export function FilesPage() {
   const [cursor, setCursor] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [prefix, setPrefix] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
   async function load(next?: string | null) {
     if (!session) {
       return;
     }
     setLoading(true);
-    const params = new URLSearchParams({ limit: "100", prefix });
-    if (next) {
-      params.set("cursor", next);
+    setError(null);
+    try {
+      const params = new URLSearchParams({ limit: "100", prefix });
+      if (next) {
+        params.set("cursor", next);
+      }
+      const data = await apiFetch<{ files: FileRow[]; next_cursor: string | null }>(
+        `/admin/files?${params}`,
+        session.token,
+      );
+      setFiles((prev) => (next ? [...prev, ...data.files] : data.files));
+      setCursor(data.next_cursor);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to load files";
+      setError(message);
+      if (!next) {
+        setFiles([]);
+        setCursor(null);
+      }
+    } finally {
+      setLoading(false);
     }
-    const data = await apiFetch<{ files: FileRow[]; next_cursor: string | null }>(
-      `/admin/files?${params}`,
-      session.token,
-    );
-    setFiles((prev) => (next ? [...prev, ...data.files] : data.files));
-    setCursor(data.next_cursor);
-    setLoading(false);
   }
 
   useEffect(() => {
@@ -40,6 +52,11 @@ export function FilesPage() {
   return (
     <div className={page.page}>
       <PageHeader title="Files" subtitle="Browse stored objects via the main API proxy" />
+      {error ? (
+        <p className={page.hint} role="status">
+          {error}
+        </p>
+      ) : null}
       <div className={`${page.surfaceCard} ${page.toolbar}`}>
         <input
           aria-label="Prefix filter"

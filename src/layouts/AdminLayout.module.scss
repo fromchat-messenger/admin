@@ -77,6 +77,11 @@
   padding: 0.5rem 0.45rem;
 }
 
+.sidebarLogout {
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
 .sidebarUserMeta {
   display: flex;
   flex-direction: column;
