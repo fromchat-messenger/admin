@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import { ThemeProvider, type ColorMode } from "m3-expressive-react";
+import { ThemeProvider, schemeToCssVars, type ColorMode } from "m3-expressive-react";
+import { fromchatAppColorScheme } from "@/theme/fromchatAppColorScheme";
 
 const STORAGE_KEY = "fromchat.admin.color-mode";
 
@@ -53,10 +54,13 @@ export function AdminThemeProvider({ children }: { children: ReactNode }) {
 
   const ctx = useMemo(() => ({ mode, setMode, toggleMode }), [mode, setMode, toggleMode]);
 
+  const appScheme = useMemo(() => fromchatAppColorScheme(mode), [mode]);
+  const appCssVars = useMemo(() => schemeToCssVars(appScheme), [appScheme]);
+
   return (
     <AdminThemeContext.Provider value={ctx}>
       <ThemeProvider
-        seedColor="#4F5B93"
+        seedColor="#6750A4"
         mode={mode}
         motionScheme="expressive"
         as="div"
@@ -65,6 +69,7 @@ export function AdminThemeProvider({ children }: { children: ReactNode }) {
           overflowX: "clip",
           background: "var(--md-sys-color-surface)",
           color: "var(--md-sys-color-on-surface)",
+          ...appCssVars,
         }}
       >
         {children}
