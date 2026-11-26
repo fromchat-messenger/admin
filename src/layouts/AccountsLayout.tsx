@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { Outlet, useLocation, useOutlet } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { aospDetailEnter, aospListEnter } from "@/motion/aospTransition";
+import { accountsDetailSlide, accountsListSlide } from "@/motion/aospTransition";
 import styles from "./AccountsLayout.module.scss";
 
 export function AccountsLayout() {
@@ -16,13 +16,16 @@ export function AccountsLayout() {
     return !isDetail;
   }, [isDetail, location.state]);
 
+  const detail = accountsDetailSlide();
+  const list = accountsListSlide();
+
   const motionProps = isDetail
     ? forward
-      ? aospDetailEnter()
-      : { ...aospDetailEnter(), initial: aospDetailEnter().exit, animate: aospDetailEnter().animate }
+      ? detail
+      : { ...detail, initial: detail.exit, animate: detail.animate }
     : forward
-      ? { ...aospListEnter(), initial: false }
-      : { ...aospListEnter(), initial: aospListEnter().exit, animate: aospListEnter().animate };
+      ? { ...list, initial: false }
+      : { ...list, initial: list.exit, animate: list.animate };
 
   return (
     <div className={styles.stack}>

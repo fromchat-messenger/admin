@@ -1,36 +1,23 @@
-/** Mirrors exteraGram `WindowTransitionAnimationHelper` (AOSP window transitions). */
-export const AOSP_TRANSITION_MS = 450;
-export const AOSP_SLIDE_PX = 96;
+import { pageTransition } from "@/motion/spring";
 
-const emphasized = [0.2, 0, 0, 1] as const;
+export const ACCOUNTS_SLIDE_PX = 48;
 
-export const aospTransition = {
-  type: "tween" as const,
-  duration: AOSP_TRANSITION_MS / 1000,
-  ease: emphasized,
-};
+const accountsSlideTransition = pageTransition;
 
-export function aospDetailEnter() {
+export function accountsDetailSlide() {
   return {
-    initial: { x: AOSP_SLIDE_PX, opacity: 0.12 },
+    initial: { x: ACCOUNTS_SLIDE_PX, opacity: 0.92 },
     animate: { x: 0, opacity: 1 },
-    exit: { x: AOSP_SLIDE_PX, opacity: 0.12 },
-    transition: aospTransition,
+    exit: { x: ACCOUNTS_SLIDE_PX, opacity: 0.92 },
+    transition: accountsSlideTransition,
   };
 }
 
-export function aospListEnter() {
+export function accountsListSlide() {
   return {
-    initial: { x: -AOSP_SLIDE_PX, opacity: 0.88 },
+    initial: { x: -ACCOUNTS_SLIDE_PX, opacity: 0.92 },
     animate: { x: 0, opacity: 1 },
-    exit: { x: -AOSP_SLIDE_PX, opacity: 0.88 },
-    transition: aospTransition,
+    exit: { x: -ACCOUNTS_SLIDE_PX, opacity: 0.92 },
+    transition: accountsSlideTransition,
   };
-}
-
-export function pickAospMotion(forward: boolean, isDetail: boolean) {
-  if (isDetail) {
-    return forward ? aospDetailEnter() : { ...aospDetailEnter(), initial: aospDetailEnter().exit };
-  }
-  return forward ? aospListEnter() : { ...aospListEnter(), initial: aospListEnter().exit };
 }

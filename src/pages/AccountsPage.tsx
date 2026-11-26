@@ -107,6 +107,14 @@ export function AccountsPage() {
     void load();
   }, [load]);
 
+  useEffect(() => {
+    const timeout = window.setTimeout(() => {
+      setQuery(q);
+      setOffset(0);
+    }, 1500);
+    return () => window.clearTimeout(timeout);
+  }, [q]);
+
   function openUser(userId: number) {
     navigate(`/accounts/${userId}`, { state: { aospForward: true } });
   }
@@ -142,10 +150,6 @@ export function AccountsPage() {
           className={page.searchBar}
           value={q}
           onChange={(_, value) => setQ(value)}
-          onSearch={(value) => {
-            setQuery(value);
-            setOffset(0);
-          }}
           placeholder="Search users"
           inputProps={{ "aria-label": "Search users" }}
         />
