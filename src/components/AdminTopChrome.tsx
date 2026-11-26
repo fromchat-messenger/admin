@@ -15,8 +15,8 @@ export function AdminTopChrome({ username, userId, onSignOut }: AdminTopChromePr
       </div>
 
       <div className={styles.brandWords}>
-        <span className={styles.brandName}>FromChat</span>
-        <span className={styles.brandAdmin}>Admin</span>
+        <p className={styles.brandName}>FromChat</p>
+        <p className={styles.brandAdmin}>Admin</p>
       </div>
 
       <AdminProfileMenu username={username} userId={userId} onSignOut={onSignOut} />
