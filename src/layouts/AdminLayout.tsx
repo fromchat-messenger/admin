@@ -76,9 +76,10 @@ export function AdminLayout() {
   return (
     <motion.div
       className={styles.shell}
-      initial={fromLogin ? { opacity: 0, scale: 0.985, y: 10 } : false}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
+      initial={fromLogin ? { opacity: 0, scale: 0.985 } : false}
+      animate={{ opacity: 1, scale: 1 }}
       transition={adminEnter}
+      style={{ transformOrigin: "top center" }}
       onAnimationComplete={() => {
         if (fromLogin && !clearedLoginStateRef.current) {
           clearedLoginStateRef.current = true;
@@ -107,7 +108,7 @@ export function AdminLayout() {
         </nav>
 
         <div className={styles.sidebarFoot}>
-          <motion.div className={styles.sidebarUser} layout transition={pageTransition}>
+          <div className={styles.sidebarUser}>
             <UserAvatar name={session?.username ?? "Admin"} size="sm" />
             <div className={styles.sidebarUserMeta}>
               <span className={styles.sidebarUserName}>{session?.username}</span>
@@ -120,7 +121,7 @@ export function AdminLayout() {
               aria-label="Sign out"
               onClick={signOut}
             />
-          </motion.div>
+          </div>
         </div>
       </aside>
 
@@ -141,18 +142,20 @@ export function AdminLayout() {
           </div>
         </header>
 
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.main
-            className={styles.content}
-            key={location.pathname}
-            initial={false}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
-            transition={pageShift}
-          >
-            <Outlet />
-          </motion.main>
-        </AnimatePresence>
+        <div className={styles.contentStage}>
+          <AnimatePresence mode="popLayout" initial={false}>
+            <motion.main
+              className={styles.content}
+              key={location.pathname}
+              initial={false}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={pageShift}
+            >
+              <Outlet />
+            </motion.main>
+          </AnimatePresence>
+        </div>
 
         <nav className={styles.bottomNav} aria-label="Primary mobile">
           {mobileNav.map((item) => (

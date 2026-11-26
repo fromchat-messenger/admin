@@ -62,6 +62,7 @@ export function AdminThemeProvider({ children }: { children: ReactNode }) {
         as="div"
         style={{
           minHeight: "100dvh",
+          overflowX: "clip",
           background: "var(--md-sys-color-surface)",
           color: "var(--md-sys-color-on-surface)",
         }}

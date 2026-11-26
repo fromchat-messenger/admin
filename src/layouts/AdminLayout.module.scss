@@ -2,6 +2,7 @@
   display: grid;
   grid-template-columns: 1fr;
   min-height: 100dvh;
+  overflow: clip;
   background: var(--md-sys-color-surface);
 
   @media (min-width: 900px) {
@@ -107,7 +108,15 @@
   flex-direction: column;
   min-width: 0;
   min-height: 100dvh;
+  overflow: clip;
   background: var(--md-sys-color-surface-container-low);
+}
+
+.contentStage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: clip;
 }
 
 .topbar {
@@ -144,9 +153,9 @@
 }
 
 .content {
-  flex: 1;
   width: 100%;
   max-width: 1400px;
+  min-height: 100%;
   margin: 0 auto;
   padding: 1.25rem 1.25rem 5.75rem;
 

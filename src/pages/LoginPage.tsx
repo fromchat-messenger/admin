@@ -68,12 +68,13 @@ export function LoginPage() {
   return (
     <motion.div
       className={styles.page}
-      initial={{ opacity: 0, scale: 0.98, y: 10 }}
+      initial={{ opacity: 0, scale: 0.98 }}
       animate={
         leaving
-          ? { opacity: 0, scale: 0.97, y: -14, filter: "blur(6px)" }
-          : { opacity: 1, scale: 1, y: 0, filter: "blur(0px)" }
+          ? { opacity: 0, scale: 0.97, filter: "blur(6px)" }
+          : { opacity: 1, scale: 1, filter: "blur(0px)" }
       }
+      style={{ transformOrigin: "center center" }}
       transition={leaving ? loginLeave : loginReveal}
       onAnimationComplete={() => {
         if (leaving) {
@@ -83,8 +84,8 @@ export function LoginPage() {
     >
       <motion.div
         className={styles.card}
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0, scale: 0.98 }}
+        animate={{ opacity: 1, scale: 1 }}
         transition={{ ...loginReveal, delay: 0.04 }}
       >
         <header className={styles.intro}>
