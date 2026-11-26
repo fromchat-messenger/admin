@@ -38,6 +38,13 @@ function mergeRingIntoWindow(ring: number[]): (number | null)[] {
   return slots;
 }
 
+function messageHasLiveMetrics(data: TickMessage): boolean {
+  if (data.host) {
+    return true;
+  }
+  return (data.cpu_ring?.length ?? 0) > 0;
+}
+
 function pushCpuSample(prev: (number | null)[], sample: number): (number | null)[] {
   const filled = prev.filter((value) => value != null).length;
   if (filled < CPU_WINDOW) {
@@ -51,12 +58,12 @@ function pushCpuSample(prev: (number | null)[], sample: number): (number | null)
 export function DashboardPage() {
   const { session } = useAuth();
   const [connected, setConnected] = useState(false);
-  const [summaryReady, setSummaryReady] = useState(false);
+  const [metricsLive, setMetricsLive] = useState(false);
   const [host, setHost] = useState({ cpu: 0, mem: 0, disk: 0 });
   const [cpuSlots, setCpuSlots] = useState<(number | null)[]>(emptyCpuWindow);
   const [totals, setTotals] = useState<Record<string, number>>({});
 
-  useMainPaneBusy(!connected || !summaryReady, "Connecting to live metrics…");
+  useMainPaneBusy(!metricsLive, "Connecting to live metrics…");
 
   const displayName = useMemo(() => {
     const name = session?.username ?? "admin";
@@ -78,11 +85,6 @@ export function DashboardPage() {
         if (!cancelled) {
           setTotals(data);
         }
-      })
-      .finally(() => {
-        if (!cancelled) {
-          setSummaryReady(true);
-        }
       });
     return () => {
       cancelled = true;
@@ -99,6 +101,9 @@ export function DashboardPage() {
     socket.onclose = () => setConnected(false);
     socket.onmessage = (event) => {
       const data = JSON.parse(event.data) as TickMessage;
+      if (messageHasLiveMetrics(data)) {
+        setMetricsLive(true);
+      }
       if (data.host) {
         setHost({
           cpu: data.host.cpu_percent,
