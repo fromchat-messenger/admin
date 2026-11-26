@@ -2,12 +2,16 @@ import { useEffect, useMemo, useState } from "react";
 import Button from "m3-expressive-react/Button";
 import Dialog from "m3-expressive-react/Dialog";
 import IconButton from "m3-expressive-react/IconButton";
-import List, { ListItem } from "m3-expressive-react/List";
 import TextField from "m3-expressive-react/TextField";
 import { useAuth } from "@/auth/AuthContext";
 import { apiFetch, ApiError } from "@/api/client";
 import { ProfileActionButtonRow } from "@/accounts/ProfileActionButtonRow";
-import { ProfileCategory } from "@/accounts/ProfileCategory";
+import { OverlayAutoHideScroll } from "@/profile/OverlayAutoHideScroll";
+import { Category } from "@/profile/fromchat/Category";
+import { categoryDefaults } from "@/profile/fromchat/categoryDefaults";
+import { ProfileListItem } from "@/profile/fromchat/ProfileListItem";
+import { ProfileListItemGroup } from "@/profile/fromchat/ProfileListItemGroup";
+import { ProfileListItemContextMenu } from "@/profile/fromchat/ProfileListItemContextMenu";
 import type { AccountUserProfile } from "@/accounts/accountProfileTypes";
 import { useAccountProfile } from "@/accounts/useAccountProfile";
 import { UserAvatar } from "@/components/UserAvatar";
@@ -286,15 +290,7 @@ export function AccountProfileDialog({ userId, open, onClose, onProfileUpdated }
       >
         {mode === "edit" ? (
           <div className={styles.shell}>
-            <div className={styles.floatingChrome}>
-              <IconButton
-                variant="standard"
-                aria-label="Back to profile"
-                onClick={handleShellClose}
-                icon={<span className="material-symbols-rounded">arrow_back</span>}
-              />
-            </div>
-            <div className={styles.scroll}>
+            <OverlayAutoHideScroll>
               <div className={styles.column}>
                 <div className={styles.avatarWrap}>
                   <UserAvatar name={displayName.trim() || "?"} size="xl" shape="circle" />
@@ -329,19 +325,11 @@ export function AccountProfileDialog({ userId, open, onClose, onProfileUpdated }
                 </div>
                 {saveError ? <p className={styles.emptyState}>{saveError}</p> : null}
               </div>
-            </div>
+            </OverlayAutoHideScroll>
           </div>
         ) : (
           <div className={styles.shell}>
-            <div className={styles.floatingChrome}>
-              <IconButton
-                variant="standard"
-                aria-label="Close profile"
-                onClick={handleShellClose}
-                icon={<span className="material-symbols-rounded">arrow_back</span>}
-              />
-            </div>
-            <div className={styles.scroll}>
+            <OverlayAutoHideScroll>
               {loading && !profile ? (
                 <p className={styles.emptyState}>Loading…</p>
               ) : !profile ? (
@@ -389,41 +377,56 @@ export function AccountProfileDialog({ userId, open, onClose, onProfileUpdated }
                   />
 
                   {detailRows.length > 0 ? (
-                    <ProfileCategory marginTop={28}>
-                      <List variant="segmented" aria-label="Profile details">
+                    <Category margin={{ top: categoryDefaults.marginTopDetailsPx }} roundedCorners={false}>
+                      <ProfileListItemGroup>
                         {detailRows.map((row) => (
-                          <ListItem
+                          <ProfileListItemContextMenu
                             key={row.key}
-                            headline={row.headline}
-                            supportingText={
-                              row.key === "bio" ? (
-                                <p className={styles.bioText}>{row.supporting}</p>
-                              ) : (
-                                row.supporting
-                              )
-                            }
-                            onClick={row.onEdit}
-                            leading={
-                              <span className={`material-symbols-rounded ${styles.leadingIcon}`}>{row.icon}</span>
-                            }
-                          />
+                            items={[
+                              {
+                                label: "Copy",
+                                icon: <span className="material-symbols-rounded">content_copy</span>,
+                                onSelect: () => void copyText(row.supporting),
+                              },
+                              ...(row.onEdit
+                                ? [
+                                    {
+                                      label: "Edit",
+                                      icon: <span className="material-symbols-rounded">edit</span>,
+                                      onSelect: row.onEdit,
+                                    },
+                                  ]
+                                : []),
+                            ]}
+                          >
+                            <ProfileListItem
+                              headline={row.headline}
+                              supportingText={row.supporting}
+                              onClick={row.onEdit}
+                              leading={<span className="material-symbols-rounded">{row.icon}</span>}
+                            />
+                          </ProfileListItemContextMenu>
                         ))}
-                      </List>
-                    </ProfileCategory>
+                      </ProfileListItemGroup>
+                    </Category>
                   ) : null}
 
                   {showAdmin ? (
-                    <ProfileCategory title="Administration" marginTop={detailRows.length > 0 ? 8 : 28}>
-                      <List variant="segmented" aria-label="Admin actions">
-                        <ListItem
+                    <Category
+                      title="Administration"
+                      margin={{
+                        top: detailRows.length > 0 ? categoryDefaults.marginTopStackedPx : categoryDefaults.marginTopDetailsPx,
+                      }}
+                      roundedCorners={false}
+                    >
+                      <ProfileListItemGroup>
+                        <ProfileListItem
                           headline={profile.verified ? "Remove verification" : "Verify account"}
                           onClick={() => setConfirm(profile.verified ? "unverify" : "verify")}
                           disabled={adminBusy}
-                          leading={
-                            <span className={`material-symbols-rounded ${styles.leadingIcon}`}>verified</span>
-                          }
+                          leading={<span className="material-symbols-rounded">verified</span>}
                         />
-                        <ListItem
+                        <ProfileListItem
                           headline={profile.suspended ? "Unsuspend account" : "Suspend account"}
                           onClick={() =>
                             profile.suspended
@@ -432,26 +435,24 @@ export function AccountProfileDialog({ userId, open, onClose, onProfileUpdated }
                           }
                           disabled={adminBusy}
                           leading={
-                            <span className={`material-symbols-rounded ${styles.leadingIconDanger}`}>
+                            <span className="material-symbols-rounded">
                               {profile.suspended ? "check_circle" : "block"}
                             </span>
                           }
+                          leadingIconTint="var(--md-sys-color-error)"
                         />
-                        <ListItem
+                        <ProfileListItem
                           headline="Delete account"
                           onClick={() => setConfirm("delete")}
                           disabled={adminBusy}
-                          leading={
-                            <span className={`material-symbols-rounded ${styles.leadingIconDanger}`}>
-                              delete_forever
-                            </span>
-                          }
+                          leading={<span className="material-symbols-rounded">delete_forever</span>}
+                          leadingIconTint="var(--md-sys-color-error)"
                         />
-                      </List>
-                    </ProfileCategory>
+                      </ProfileListItemGroup>
+                    </Category>
                   ) : null}
 
-                  <ProfileCategory title="Chat filter check" marginTop={8}>
+                  <Category title="Chat filter check" margin={{ top: categoryDefaults.marginTopStackedPx }} roundedCorners={false}>
                     <div className={styles.filterRow}>
                       <TextField
                         label="Sample text"
@@ -465,10 +466,10 @@ export function AccountProfileDialog({ userId, open, onClose, onProfileUpdated }
                         {filterResult ? <span className={styles.meta}>{filterResult}</span> : null}
                       </div>
                     </div>
-                  </ProfileCategory>
+                  </Category>
 
                   {events.length > 0 ? (
-                    <ProfileCategory title="Moderation triggers" marginTop={8}>
+                    <Category title="Moderation triggers" margin={{ top: categoryDefaults.marginTopStackedPx }} roundedCorners={false}>
                       <ul className={styles.eventList}>
                         {events.map((event) => (
                           <li key={event.id} className={styles.eventItem}>
@@ -480,11 +481,11 @@ export function AccountProfileDialog({ userId, open, onClose, onProfileUpdated }
                           </li>
                         ))}
                       </ul>
-                    </ProfileCategory>
+                    </Category>
                   ) : null}
                 </div>
               )}
-            </div>
+            </OverlayAutoHideScroll>
           </div>
         )}
       </Dialog>
