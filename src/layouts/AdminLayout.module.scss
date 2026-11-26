@@ -29,50 +29,58 @@
 .brand {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 0.5rem;
-  padding: 0.15rem 0 0.35rem;
+  align-items: center;
+  gap: 0.35rem;
   width: 100%;
-  max-width: calc(96px + (var(--_expanded-w, 220px) - 96px) * var(--_t, 0));
-  overflow: hidden;
+  padding-block-end: 0.35rem;
 }
 
 .brandLogo {
+  flex-shrink: 0;
   width: 2.75rem;
   height: 2.75rem;
   border-radius: 14px;
   object-fit: cover;
   box-shadow: 0 2px 8px color-mix(in srgb, var(--md-sys-color-shadow) 18%, transparent);
-  margin-inline-start: calc((56px - 2.75rem) / 2 * (1 - var(--_t, 0)));
 }
 
 .brandText {
-  display: flex;
+  display: none;
   flex-direction: row;
-  flex-wrap: nowrap;
   align-items: baseline;
   gap: 0.35rem;
-  padding-inline-start: calc(20px * var(--_t, 0));
-  opacity: calc(0.35 + 0.65 * var(--_t, 0));
   white-space: nowrap;
-  line-height: 1.15;
+  line-height: 1.2;
+  min-width: 0;
 }
 
 .brandName {
   font-weight: 500;
-  font-size: calc(0.72rem + 0.2rem * var(--_t, 0));
+  font-size: 0.95rem;
   letter-spacing: -0.02em;
   color: var(--md-sys-color-on-surface);
 }
 
 .brandAdmin {
-  font-size: calc(0.72rem + 0.2rem * var(--_t, 0));
+  font-size: 0.95rem;
   font-weight: 600;
   letter-spacing: -0.01em;
   background: linear-gradient(45deg, #9333ea, #6366f1, #3b82f6, #a855f7, #d946ef, #ec4899, #c084fc, #7e22ce);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+}
+
+.rail[data-variant="expanded"] .brand {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.65rem;
+  padding-inline: 0.35rem 0.75rem;
+  padding-block: 0.15rem 0.55rem;
+}
+
+.rail[data-variant="expanded"] .brandText {
+  display: flex;
 }
 
 .main {

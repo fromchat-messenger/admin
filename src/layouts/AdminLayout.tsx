@@ -158,7 +158,13 @@ function AdminLayoutShell() {
               onClick={() => setRailVariant(railExpanded ? "collapsed" : "expanded")}
             />
             <div className={styles.brand}>
-              <img className={styles.brandLogo} src="/logo-square.png" width={44} height={44} alt="" />
+              <img
+                className={styles.brandLogo}
+                src="/logo-square.png"
+                width={44}
+                height={44}
+                alt="FromChat Admin"
+              />
               <div className={styles.brandText}>
                 <span className={styles.brandName}>FromChat</span>
                 <span className={styles.brandAdmin}>Admin</span>
