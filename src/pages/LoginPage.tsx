@@ -16,10 +16,6 @@ export function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  if (session) {
-    return <Navigate to="/dashboard" replace />;
-  }
-
   useEffect(() => {
     if (!error) {
       return;
@@ -27,6 +23,10 @@ export function LoginPage() {
     const timeout = window.setTimeout(() => setError(null), ERROR_VISIBLE_MS);
     return () => window.clearTimeout(timeout);
   }, [error]);
+
+  if (session) {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
