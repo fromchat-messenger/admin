@@ -13,11 +13,53 @@
   max-height: min(88vh, 52rem) !important;
   padding: 0 !important;
   overflow: hidden !important;
-  background: var(--md-sys-color-surface) !important;
+  background: var(--md-sys-color-background) !important;
   transform-origin: center center;
   transition:
     opacity 0.4s cubic-bezier(0.2, 0.9, 0.2, 1),
     transform 0.55s cubic-bezier(0.34, 1.25, 0.32, 1) !important;
+
+  :global([class*="_title_"]) {
+    margin-bottom: 0.5rem !important;
+    padding-inline: 1.25rem;
+  }
+
+  :global([class*="_body_"]) {
+    padding: 0 !important;
+    margin: 0 !important;
+    color: var(--md-sys-color-on-surface);
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  :global([class*="_actions_"]) {
+    display: none !important;
+    padding-inline: 1.25rem;
+    margin-top: 0.5rem !important;
+  }
+
+  &[data-edit-mode] :global([class*="_actions_"]) {
+    display: flex !important;
+  }
+}
+
+.floatingChrome {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  flex-shrink: 0;
+  padding: 0.35rem 0.2rem 0.75rem;
+  margin-bottom: -0.25rem;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--md-sys-color-background) 92%, transparent) 0%,
+    color-mix(in srgb, var(--md-sys-color-background) 70%, transparent) 65%,
+    transparent 100%
+  );
+  backdrop-filter: blur(16px) saturate(1.05);
+  -webkit-backdrop-filter: blur(16px) saturate(1.05);
 }
 
 .shell {
@@ -87,8 +129,13 @@
   padding: 1.5rem 1rem 0;
 }
 
+.actionSlot {
+  min-width: 0;
+  display: flex;
+}
+
 .actionButton {
-  flex: 1;
+  width: 100%;
   min-width: 0;
   display: flex;
   flex-direction: column;
@@ -115,6 +162,11 @@
   border-radius: var(--md-sys-shape-corner-extra-large, 1.75rem);
   background: var(--md-sys-color-secondary-container);
   color: var(--md-sys-color-on-secondary-container);
+  transition: background-color 0.2s ease;
+
+  .actionButton:active:not(:disabled) & {
+    filter: brightness(0.96);
+  }
 
   .material-symbols-rounded {
     font-size: 1.5rem;
@@ -129,14 +181,23 @@
   padding: 0 0.125rem;
 }
 
-.category {
-  margin: 1.75rem 1rem 1.25rem;
+.categoryBlock {
+  margin-inline: 1rem;
+  margin-bottom: 1.25rem;
 }
 
 .categoryTitle {
-  margin: 0 0 0.35rem 0.25rem;
-  font: var(--md-sys-typescale-title-small);
-  color: var(--md-sys-color-on-surface-variant);
+  margin: 0 0 0.625rem;
+  padding-inline: 1rem;
+  font: var(--md-sys-typescale-title-medium);
+  font-weight: 500;
+  color: var(--md-sys-color-primary);
+}
+
+.categorySurface {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 }
 
 .leadingIcon {
@@ -182,7 +243,7 @@
 .eventList {
   list-style: none;
   margin: 0;
-  padding: 0 1rem 1rem;
+  padding: 0.25rem 0.25rem 0.5rem;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -213,8 +274,20 @@
 
 .filterRow {
   display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.75rem;
+  padding: 0.75rem 0.25rem 0.25rem;
+}
+
+.filterActions {
+  display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 0.75rem;
-  padding: 0 1rem 1.5rem;
+}
+
+.meta {
+  font-size: 0.8125rem;
+  color: var(--md-sys-color-on-surface-variant);
 }

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Button from "m3-expressive-react/Button";
 import Dialog from "m3-expressive-react/Dialog";
 import IconButton from "m3-expressive-react/IconButton";
@@ -6,7 +6,8 @@ import List, { ListItem } from "m3-expressive-react/List";
 import TextField from "m3-expressive-react/TextField";
 import { useAuth } from "@/auth/AuthContext";
 import { apiFetch, ApiError } from "@/api/client";
-import { ProfileActionButton } from "@/accounts/ProfileActionButton";
+import { ProfileActionButtonRow } from "@/accounts/ProfileActionButtonRow";
+import { ProfileCategory } from "@/accounts/ProfileCategory";
 import type { AccountUserProfile } from "@/accounts/accountProfileTypes";
 import { useAccountProfile } from "@/accounts/useAccountProfile";
 import { UserAvatar } from "@/components/UserAvatar";
@@ -264,6 +265,7 @@ export function AccountProfileDialog({ userId, open, onClose, onProfileUpdated }
         onClose={handleShellClose}
         className={styles.profileDialogSurface}
         data-account-profile-dialog=""
+        data-edit-mode={mode === "edit" ? "" : undefined}
         title={mode === "edit" ? "Edit profile" : undefined}
         actions={
           mode === "edit" ? (
@@ -279,15 +281,19 @@ export function AccountProfileDialog({ userId, open, onClose, onProfileUpdated }
                 Save
               </Button>
             </>
-          ) : (
-            <Button variant="text" onClick={handleShellClose}>
-              Close
-            </Button>
-          )
+          ) : undefined
         }
       >
         {mode === "edit" ? (
           <div className={styles.shell}>
+            <div className={styles.floatingChrome}>
+              <IconButton
+                variant="standard"
+                aria-label="Back to profile"
+                onClick={handleShellClose}
+                icon={<span className="material-symbols-rounded">arrow_back</span>}
+              />
+            </div>
             <div className={styles.scroll}>
               <div className={styles.column}>
                 <div className={styles.avatarWrap}>
@@ -327,6 +333,14 @@ export function AccountProfileDialog({ userId, open, onClose, onProfileUpdated }
           </div>
         ) : (
           <div className={styles.shell}>
+            <div className={styles.floatingChrome}>
+              <IconButton
+                variant="standard"
+                aria-label="Close profile"
+                onClick={handleShellClose}
+                icon={<span className="material-symbols-rounded">arrow_back</span>}
+              />
+            </div>
             <div className={styles.scroll}>
               {loading && !profile ? (
                 <p className={styles.emptyState}>Loading…</p>
@@ -349,28 +363,33 @@ export function AccountProfileDialog({ userId, open, onClose, onProfileUpdated }
                     </p>
                   ) : null}
 
-                  <div className={styles.actionRow}>
-                    <ProfileActionButton
-                      label="Edit"
-                      icon={<span className="material-symbols-rounded">edit</span>}
-                      onClick={() => enterEdit()}
-                      disabled={profile.deleted}
-                    />
-                    <ProfileActionButton
-                      label="Link"
-                      icon={<span className="material-symbols-rounded">link</span>}
-                      onClick={() => void copyText(profileLink(profile.username, profile.id))}
-                      disabled={profile.deleted}
-                    />
-                    <ProfileActionButton
-                      label="Copy"
-                      icon={<span className="material-symbols-rounded">content_copy</span>}
-                      onClick={() => void copyText(displayLabel)}
-                    />
-                  </div>
+                  <ProfileActionButtonRow
+                    actions={[
+                      {
+                        key: "edit",
+                        label: "Edit",
+                        icon: <span className="material-symbols-rounded">edit</span>,
+                        onClick: () => enterEdit(),
+                        disabled: profile.deleted,
+                      },
+                      {
+                        key: "link",
+                        label: "Link",
+                        icon: <span className="material-symbols-rounded">link</span>,
+                        onClick: () => void copyText(profileLink(profile.username, profile.id)),
+                        disabled: profile.deleted,
+                      },
+                      {
+                        key: "copy",
+                        label: "Copy",
+                        icon: <span className="material-symbols-rounded">content_copy</span>,
+                        onClick: () => void copyText(displayLabel),
+                      },
+                    ]}
+                  />
 
                   {detailRows.length > 0 ? (
-                    <ProfileCategory>
+                    <ProfileCategory marginTop={28}>
                       <List variant="segmented" aria-label="Profile details">
                         {detailRows.map((row) => (
                           <ListItem
@@ -383,27 +402,9 @@ export function AccountProfileDialog({ userId, open, onClose, onProfileUpdated }
                                 row.supporting
                               )
                             }
+                            onClick={row.onEdit}
                             leading={
                               <span className={`material-symbols-rounded ${styles.leadingIcon}`}>{row.icon}</span>
-                            }
-                            trailing={
-                              row.onEdit ? (
-                                <IconButton
-                                  variant="standard"
-                                  size="sm"
-                                  aria-label={`Edit ${row.headline.toLowerCase()}`}
-                                  onClick={row.onEdit}
-                                  icon={<span className="material-symbols-rounded">edit</span>}
-                                />
-                              ) : (
-                                <IconButton
-                                  variant="standard"
-                                  size="sm"
-                                  aria-label={`Copy ${row.headline.toLowerCase()}`}
-                                  onClick={() => void copyText(row.supporting)}
-                                  icon={<span className="material-symbols-rounded">content_copy</span>}
-                                />
-                              )
                             }
                           />
                         ))}
@@ -412,8 +413,7 @@ export function AccountProfileDialog({ userId, open, onClose, onProfileUpdated }
                   ) : null}
 
                   {showAdmin ? (
-                    <div className={styles.category}>
-                      <p className={styles.categoryTitle}>Administration</p>
+                    <ProfileCategory title="Administration" marginTop={detailRows.length > 0 ? 8 : 28}>
                       <List variant="segmented" aria-label="Admin actions">
                         <ListItem
                           headline={profile.verified ? "Remove verification" : "Verify account"}
@@ -448,28 +448,27 @@ export function AccountProfileDialog({ userId, open, onClose, onProfileUpdated }
                           }
                         />
                       </List>
-                    </div>
+                    </ProfileCategory>
                   ) : null}
 
-                  <div className={styles.category}>
-                    <p className={styles.categoryTitle}>Chat filter check</p>
+                  <ProfileCategory title="Chat filter check" marginTop={8}>
                     <div className={styles.filterRow}>
                       <TextField
                         label="Sample text"
                         value={filterSample}
                         onChange={(e) => setFilterSample(e.target.value)}
-                        style={{ flex: "1 1 12rem" }}
                       />
-                      <Button variant="filled" onClick={() => void runFilterCheck()}>
-                        Run check
-                      </Button>
-                      {filterResult ? <span className={styles.meta}>{filterResult}</span> : null}
+                      <div className={styles.filterActions}>
+                        <Button variant="filled" onClick={() => void runFilterCheck()}>
+                          Run check
+                        </Button>
+                        {filterResult ? <span className={styles.meta}>{filterResult}</span> : null}
+                      </div>
                     </div>
-                  </div>
+                  </ProfileCategory>
 
                   {events.length > 0 ? (
-                    <div className={styles.category}>
-                      <p className={styles.categoryTitle}>Moderation triggers</p>
+                    <ProfileCategory title="Moderation triggers" marginTop={8}>
                       <ul className={styles.eventList}>
                         {events.map((event) => (
                           <li key={event.id} className={styles.eventItem}>
@@ -481,7 +480,7 @@ export function AccountProfileDialog({ userId, open, onClose, onProfileUpdated }
                           </li>
                         ))}
                       </ul>
-                    </div>
+                    </ProfileCategory>
                   ) : null}
                 </div>
               )}
@@ -556,8 +555,4 @@ export function AccountProfileDialog({ userId, open, onClose, onProfileUpdated }
       </Dialog>
     </>
   );
-}
-
-function ProfileCategory({ children }: { children: ReactNode }) {
-  return <div className={styles.category}>{children}</div>;
 }
