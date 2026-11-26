@@ -150,7 +150,7 @@ function AdminLayoutShell() {
             aria-busy
             aria-label={label}
           >
-            <MaterialLoaderRing className="material-loader" size="6rem" />
+            <MaterialLoaderRing className="material-loader" />
           </motion.div>
         ) : null}
       </AnimatePresence>

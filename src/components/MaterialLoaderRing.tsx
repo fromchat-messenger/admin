@@ -3,7 +3,7 @@ type MaterialLoaderRingProps = {
   size?: string;
 };
 
-export function MaterialLoaderRing({ className, size = "6rem" }: MaterialLoaderRingProps) {
+export function MaterialLoaderRing({ className, size = "3rem" }: MaterialLoaderRingProps) {
   return (
     <svg
       className={className}
@@ -17,7 +17,7 @@ export function MaterialLoaderRing({ className, size = "6rem" }: MaterialLoaderR
         cy="24"
         r="20"
         fill="none"
-        strokeWidth={4}
+        strokeWidth={2}
         strokeLinecap="round"
       />
     </svg>
