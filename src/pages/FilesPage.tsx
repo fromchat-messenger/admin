@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Button from "m3-expressive-react/Button";
-import LoadingIndicator from "m3-expressive-react/LoadingIndicator";
 import { useAuth } from "@/auth/AuthContext";
+import { useMainPaneBusy } from "@/layout/MainPaneBusy";
 import { apiFetch } from "@/api/client";
 import { PageHeader } from "@/components/PageHeader";
 import page from "@/styles/admin-page.module.scss";
@@ -15,6 +15,8 @@ export function FilesPage() {
   const [loading, setLoading] = useState(true);
   const [prefix, setPrefix] = useState("");
   const [error, setError] = useState<string | null>(null);
+
+  useMainPaneBusy(loading && files.length === 0, "Loading files…");
 
   async function load(next?: string | null) {
     if (!session) {
@@ -69,7 +71,6 @@ export function FilesPage() {
           Refresh
         </Button>
       </div>
-      {loading && !files.length ? <LoadingIndicator /> : null}
       <div className={page.tableWrap}>
         <table className={page.table}>
           <thead>

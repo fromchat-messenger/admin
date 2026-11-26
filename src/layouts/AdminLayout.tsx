@@ -2,11 +2,13 @@ import { useEffect, useRef } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import IconButton from "m3-expressive-react/IconButton";
+import LoadingIndicator from "m3-expressive-react/LoadingIndicator";
 import { useAuth } from "@/auth/AuthContext";
 import { useAdminTheme } from "@/theme/AdminTheme";
 import { pageTransition } from "@/motion/spring";
 import { UserAvatar } from "@/components/UserAvatar";
 import { SidebarNav, type SidebarNavItem } from "@/components/SidebarNav";
+import { MainPaneBusyProvider, useMainPaneBusyContext } from "@/layout/MainPaneBusy";
 import styles from "./AdminLayout.module.scss";
 
 const NAV_GROUPS: { label: string; items: SidebarNavItem[] }[] = [
@@ -55,6 +57,15 @@ const pageShift = {
 };
 
 export function AdminLayout() {
+  return (
+    <MainPaneBusyProvider>
+      <AdminLayoutShell />
+    </MainPaneBusyProvider>
+  );
+}
+
+function AdminLayoutShell() {
+  const { busy, label } = useMainPaneBusyContext();
   const { session, logout } = useAuth();
   const { mode, toggleMode } = useAdminTheme();
   const navigate = useNavigate();
@@ -126,6 +137,24 @@ export function AdminLayout() {
       </aside>
 
       <div className={styles.main}>
+        <AnimatePresence initial={false}>
+          {busy ? (
+            <motion.div
+              key="main-pane-busy"
+              className={styles.mainOverlay}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ ...pageTransition, mass: 0.5 }}
+              role="status"
+              aria-live="polite"
+              aria-busy
+            >
+              <LoadingIndicator size={32} color="var(--md-sys-color-primary)" aria-label={label} />
+              <p className={styles.mainOverlayLabel}>{label}</p>
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
         <header className={styles.topbar}>
           <div className={styles.topbarStart}>
             <h2 className={styles.crumb}>{pageTitle}</h2>

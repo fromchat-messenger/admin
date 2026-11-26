@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import Button from "m3-expressive-react/Button";
 import TextField from "m3-expressive-react/TextField";
-import LoadingIndicator from "m3-expressive-react/LoadingIndicator";
 import { useAuth } from "@/auth/AuthContext";
+import { useMainPaneBusy } from "@/layout/MainPaneBusy";
 import { apiFetch } from "@/api/client";
 import { PageHeader } from "@/components/PageHeader";
 import page from "@/styles/admin-page.module.scss";
@@ -18,6 +18,8 @@ export function ModerationPage() {
   >([]);
   const [loading, setLoading] = useState(true);
   const [filterOff, setFilterOff] = useState(false);
+
+  useMainPaneBusy(loading, "Loading moderation data…");
 
   async function refresh() {
     if (!session) {
@@ -46,7 +48,6 @@ export function ModerationPage() {
   return (
     <div className={page.page}>
       <PageHeader title="Moderation" subtitle="Blocklist, filter testing, and flagged content events" />
-      {loading ? <LoadingIndicator /> : null}
       {filterOff ? (
         <p className={page.hint}>
           Chat filter is disabled on this instance; blocklist editing is unavailable. Enable the filter

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Button from "m3-expressive-react/Button";
-import LoadingIndicator from "m3-expressive-react/LoadingIndicator";
 import { useAuth } from "@/auth/AuthContext";
+import { useMainPaneBusy } from "@/layout/MainPaneBusy";
 import { apiFetch } from "@/api/client";
 import { PageHeader } from "@/components/PageHeader";
 import page from "@/styles/admin-page.module.scss";
@@ -10,9 +10,15 @@ export function SettingsPage() {
   const { session } = useAuth();
   const [info, setInfo] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
+  const [infoReady, setInfoReady] = useState(false);
+
+  useMainPaneBusy(!infoReady, "Loading settings…");
+  useMainPaneBusy(loading, "Applying changes…");
 
   useEffect(() => {
-    void apiFetch<Record<string, string>>("/instance/info", null).then(setInfo);
+    void apiFetch<Record<string, string>>("/instance/info", null)
+      .then(setInfo)
+      .finally(() => setInfoReady(true));
   }, []);
 
   async function setMode(mode: "compliance" | "e2ee") {
@@ -51,7 +57,6 @@ export function SettingsPage() {
           <Button variant="outlined" disabled={loading} onClick={() => setMode("e2ee")}>
             E2EE
           </Button>
-          {loading ? <LoadingIndicator /> : null}
         </div>
       </section>
     </div>

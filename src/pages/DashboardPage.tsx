@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import LoadingIndicator from "m3-expressive-react/LoadingIndicator";
 import { useAuth } from "@/auth/AuthContext";
+import { useMainPaneBusy } from "@/layout/MainPaneBusy";
 import { apiFetch } from "@/api/client";
 import { apiWebSocketUrl } from "@/config";
 import { CpuUsageChart } from "@/components/CpuUsageChart";
@@ -51,9 +51,12 @@ function pushCpuSample(prev: (number | null)[], sample: number): (number | null)
 export function DashboardPage() {
   const { session } = useAuth();
   const [connected, setConnected] = useState(false);
+  const [summaryReady, setSummaryReady] = useState(false);
   const [host, setHost] = useState({ cpu: 0, mem: 0, disk: 0 });
   const [cpuSlots, setCpuSlots] = useState<(number | null)[]>(emptyCpuWindow);
   const [totals, setTotals] = useState<Record<string, number>>({});
+
+  useMainPaneBusy(!connected || !summaryReady, "Connecting to live metrics…");
 
   const displayName = useMemo(() => {
     const name = session?.username ?? "admin";
@@ -70,11 +73,17 @@ export function DashboardPage() {
       public_messages: number;
       dm_messages: number;
       message_files: number;
-    }>("/admin/stats/summary", session.token).then((data) => {
-      if (!cancelled) {
-        setTotals(data);
-      }
-    });
+    }>("/admin/stats/summary", session.token)
+      .then((data) => {
+        if (!cancelled) {
+          setTotals(data);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setSummaryReady(true);
+        }
+      });
     return () => {
       cancelled = true;
     };
@@ -124,16 +133,10 @@ export function DashboardPage() {
       <PageHeader
         title={`Welcome back, ${displayName}`}
         subtitle={
-          connected ? (
-            <span className={styles.live}>
-              <span className={styles.liveDot} aria-hidden />
-              Live metrics · 60s CPU window
-            </span>
-          ) : (
-            <span className={styles.live}>
-              <LoadingIndicator /> Connecting…
-            </span>
-          )
+          <span className={styles.live}>
+            {connected ? <span className={styles.liveDot} aria-hidden /> : null}
+            {connected ? "Live metrics · 60s CPU window" : "Waiting for live connection…"}
+          </span>
         }
       />
 

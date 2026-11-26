@@ -43,6 +43,8 @@
   border: 1px solid color-mix(in srgb, var(--md-sys-color-outline) 14%, transparent);
   background: var(--md-sys-color-surface);
   -webkit-overflow-scrolling: touch;
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 .table {
@@ -126,6 +128,8 @@
   background: color-mix(in srgb, var(--md-sys-color-primary) 12%, transparent);
   color: var(--md-sys-color-on-surface);
   font-size: 0.875rem;
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 .input {
@@ -184,6 +188,8 @@
     margin: 0;
     font-weight: 500;
     word-break: break-all;
+    user-select: text;
+    -webkit-user-select: text;
   }
 }
 

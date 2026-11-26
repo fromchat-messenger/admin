@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Button from "m3-expressive-react/Button";
 import TextField from "m3-expressive-react/TextField";
-import LoadingIndicator from "m3-expressive-react/LoadingIndicator";
 import { useAuth } from "@/auth/AuthContext";
+import { useMainPaneBusy } from "@/layout/MainPaneBusy";
 import { apiFetch, ApiError } from "@/api/client";
 import { PageHeader } from "@/components/PageHeader";
 import { StatusChip } from "@/components/StatusChip";
@@ -32,6 +32,8 @@ export function AccountsPage() {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<string | null>(null);
   const limit = 20;
+
+  useMainPaneBusy(loading && rows.length === 0, "Loading accounts…");
 
   const load = useCallback(async () => {
     if (!session) {
@@ -127,9 +129,7 @@ export function AccountsPage() {
         </Button>
       </div>
 
-      {loading ? (
-        <LoadingIndicator />
-      ) : (
+      {!loading || rows.length > 0 ? (
         <div className={page.tableWrap}>
           <table className={page.table}>
             <thead>
@@ -207,7 +207,7 @@ export function AccountsPage() {
             </tbody>
           </table>
         </div>
-      )}
+      ) : null}
 
       <div className={page.pager}>
         <Button variant="outlined" disabled={offset === 0} onClick={() => setOffset(Math.max(0, offset - limit))}>
