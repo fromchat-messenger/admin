@@ -246,13 +246,13 @@ function AdminLayoutShell() {
           <AnimatePresence mode="popLayout" initial={false}>
             <motion.main
               className={styles.content}
-              key={location.pathname}
+              key={overlayKey}
               initial={false}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={pageShift}
             >
-              {paneContentRevealed ? <Outlet key={location.pathname} /> : null}
+              {paneContentRevealed ? <Outlet /> : null}
             </motion.main>
           </AnimatePresence>
         </div>

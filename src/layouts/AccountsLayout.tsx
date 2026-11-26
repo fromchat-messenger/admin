@@ -1,20 +1,35 @@
-import { useMemo } from "react";
+import { useLayoutEffect, useMemo, useRef } from "react";
 import { Outlet, useLocation, useOutlet } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { accountsDetailSlide, accountsListSlide } from "@/motion/aospTransition";
 import styles from "./AccountsLayout.module.scss";
 
+const ACCOUNTS_DETAIL = /\/accounts\/\d+\/?$/;
+
 export function AccountsLayout() {
   const location = useLocation();
   const outlet = useOutlet();
-  const isDetail = /\/accounts\/\d+\/?$/.test(location.pathname);
+  const previousPathRef = useRef(location.pathname);
+  const isDetail = ACCOUNTS_DETAIL.test(location.pathname);
   const forward = useMemo(() => {
     const state = location.state as { aospForward?: boolean } | null;
     if (typeof state?.aospForward === "boolean") {
       return state.aospForward;
     }
+    const previous = previousPathRef.current;
+    const wasDetail = ACCOUNTS_DETAIL.test(previous);
+    if (isDetail && !wasDetail) {
+      return true;
+    }
+    if (!isDetail && wasDetail) {
+      return false;
+    }
     return !isDetail;
-  }, [isDetail, location.state]);
+  }, [isDetail, location.pathname, location.state]);
+
+  useLayoutEffect(() => {
+    previousPathRef.current = location.pathname;
+  }, [location.pathname]);
 
   const detail = accountsDetailSlide();
   const list = accountsListSlide();

@@ -196,7 +196,7 @@ export function AccountUserPage() {
             variant="tonal"
             icon={<span className="material-symbols-rounded">arrow_back</span>}
             aria-label="Back to accounts"
-            onClick={() => navigate("/accounts")}
+            onClick={() => navigate("/accounts", { state: { aospForward: false } })}
           />
         }
       />
