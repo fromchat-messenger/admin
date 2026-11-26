@@ -69,7 +69,7 @@ export function LoginPage() {
           <Button
             type="submit"
             variant="filled"
-            size="sm"
+            size="md"
             shape="square"
             disabled={loading}
             className={styles.submit}
