@@ -4,9 +4,9 @@
   contain: layout paint;
 }
 
-.inner {
-  overflow: hidden;
-  min-height: 0;
+.scaleWrap {
+  padding-bottom: 0.35rem;
+  transform-origin: top center;
 }
 
 .body {
@@ -21,7 +21,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .shell,
-  .body {
+  .scaleWrap {
     transition: none !important;
   }
 }

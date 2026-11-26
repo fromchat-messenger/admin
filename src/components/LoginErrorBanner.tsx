@@ -3,8 +3,9 @@ import { useLayoutEffect, useRef, useState } from "react";
 import { pageTransition } from "@/motion/spring";
 import styles from "./LoginErrorBanner.module.scss";
 
-const shellEnterSpring = {
+const revealSpring = {
   ...pageTransition,
+  mass: 0.65,
   bounce: 0,
 };
 
@@ -16,16 +17,10 @@ const shellExitSpring = {
   bounce: 0,
 };
 
-const bodyEnterSpring = {
-  ...pageTransition,
-  mass: 0.65,
-  bounce: 0,
-};
-
-const bodyExitSpring = {
+const contentExitSpring = {
   type: "spring" as const,
-  stiffness: 920,
-  damping: 54,
+  stiffness: 880,
+  damping: 52,
   mass: 0.32,
   bounce: 0,
 };
@@ -35,7 +30,7 @@ type LoginErrorBannerProps = {
 };
 
 export function LoginErrorBanner({ message }: LoginErrorBannerProps) {
-  const innerRef = useRef<HTMLDivElement>(null);
+  const scaleRef = useRef<HTMLDivElement>(null);
   const [height, setHeight] = useState(0);
 
   useLayoutEffect(() => {
@@ -43,7 +38,11 @@ export function LoginErrorBanner({ message }: LoginErrorBannerProps) {
       return;
     }
     const measure = () => {
-      const next = innerRef.current?.scrollHeight ?? 0;
+      const node = scaleRef.current;
+      if (!node) {
+        return;
+      }
+      const next = node.offsetHeight;
       if (next > 0) {
         setHeight(next);
       }
@@ -66,23 +65,20 @@ export function LoginErrorBanner({ message }: LoginErrorBannerProps) {
           initial={{ height: 0 }}
           animate={{ height }}
           exit={{ height: 0, transition: shellExitSpring }}
-          transition={shellEnterSpring}
+          transition={revealSpring}
         >
-          <div ref={innerRef} className={styles.inner}>
-            <motion.p
-              className={styles.body}
-              role="alert"
-              initial={{ opacity: 0, y: -6 }}
-              animate={{
-                opacity: 1,
-                y: 0,
-                transition: { ...bodyEnterSpring, opacity: { ...bodyEnterSpring, delay: 0.03 } },
-              }}
-              exit={{ opacity: 0, y: -4, transition: bodyExitSpring }}
-            >
+          <motion.div
+            ref={scaleRef}
+            className={styles.scaleWrap}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1, transition: revealSpring }}
+            exit={{ opacity: 0, scale: 0.94, transition: contentExitSpring }}
+            style={{ transformOrigin: "top center" }}
+          >
+            <p className={styles.body} role="alert">
               {message}
-            </motion.p>
-          </div>
+            </p>
+          </motion.div>
         </motion.div>
       ) : null}
     </AnimatePresence>
