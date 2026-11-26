@@ -122,10 +122,6 @@ function AdminLayoutShell() {
     navigate("/login", { replace: true });
   }
 
-  function toggleRail() {
-    setRailVariant(railExpanded ? "collapsed" : "expanded");
-  }
-
   return (
     <motion.div
       className={styles.shell}

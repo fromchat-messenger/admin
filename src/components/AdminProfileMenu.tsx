@@ -6,19 +6,20 @@ import styles from "./AdminProfileMenu.module.scss";
 type AdminProfileMenuProps = {
   username: string;
   userId: number;
-  mode: "light" | "dark";
-  onToggleTheme: () => void;
   onSignOut: () => void;
+  mode?: "light" | "dark";
+  onToggleTheme?: () => void;
 };
 
 export function AdminProfileMenu({
   username,
   userId,
+  onSignOut,
   mode,
   onToggleTheme,
-  onSignOut,
 }: AdminProfileMenuProps) {
   const navigate = useNavigate();
+  const showTheme = mode != null && onToggleTheme != null;
   const themeLabel = mode === "dark" ? "Light theme" : "Dark theme";
   const themeIcon = mode === "dark" ? "light_mode" : "dark_mode";
 
@@ -28,6 +29,18 @@ export function AdminProfileMenu({
 
   return (
     <div className={styles.toolbar}>
+      {showTheme ? (
+        <Button
+          className={styles.themeToggle}
+          variant="tonal"
+          size="sm"
+          onClick={onToggleTheme}
+          startIcon={<span className="material-symbols-rounded">{themeIcon}</span>}
+        >
+          {themeLabel}
+        </Button>
+      ) : null}
+
       <button
         type="button"
         className={styles.trigger}
@@ -41,14 +54,6 @@ export function AdminProfileMenu({
         </div>
       </button>
 
-      <Button
-        variant="text"
-        size="sm"
-        onClick={onToggleTheme}
-        startIcon={<span className="material-symbols-rounded">{themeIcon}</span>}
-      >
-        {themeLabel}
-      </Button>
       <Button
         variant="text"
         size="sm"
