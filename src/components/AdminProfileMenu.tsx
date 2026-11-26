@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import IconButton from "m3-expressive-react/IconButton";
+import Button from "m3-expressive-react/Button";
 import { UserAvatar } from "@/components/UserAvatar";
 import styles from "./AdminProfileMenu.module.scss";
 
@@ -41,20 +41,22 @@ export function AdminProfileMenu({
         </div>
       </button>
 
-      <IconButton
-        variant="tonal"
+      <Button
+        variant="text"
         size="sm"
-        aria-label={themeLabel}
         onClick={onToggleTheme}
-        icon={<span className="material-symbols-rounded">{themeIcon}</span>}
-      />
-      <IconButton
-        variant="tonal"
+        startIcon={<span className="material-symbols-rounded">{themeIcon}</span>}
+      >
+        {themeLabel}
+      </Button>
+      <Button
+        variant="text"
         size="sm"
-        aria-label="Sign out"
         onClick={onSignOut}
-        icon={<span className="material-symbols-rounded">logout</span>}
-      />
+        startIcon={<span className="material-symbols-rounded">logout</span>}
+      >
+        Sign out
+      </Button>
     </div>
   );
 }

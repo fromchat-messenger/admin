@@ -160,8 +160,6 @@ function AdminLayoutShell() {
       </NavigationRail>
 
       <AdminTopChrome
-        railExpanded={railExpanded}
-        onToggleRail={toggleRail}
         username={session?.username ?? "Admin"}
         userId={session?.userId ?? 1}
         mode={mode}
