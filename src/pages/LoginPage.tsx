@@ -41,11 +41,12 @@ export function LoginPage() {
           </p>
         </header>
 
-        <form className={styles.form} onSubmit={onSubmit}>
+        <form className={styles.form} data-md-motion-scheme="standard" onSubmit={onSubmit}>
           <TextField
             className={styles.field}
             variant="outlined"
             label="Username"
+            startIcon={<span className="material-symbols-rounded">person</span>}
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             autoComplete="username"
@@ -56,6 +57,7 @@ export function LoginPage() {
             variant="outlined"
             label="Password"
             type="password"
+            startIcon={<span className="material-symbols-rounded">lock</span>}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             autoComplete="current-password"
