@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import IconButton from "m3-expressive-react/IconButton";
-import LoadingIndicator from "m3-expressive-react/LoadingIndicator";
+import { MaterialLoaderRing } from "@/components/MaterialLoaderRing";
 import { useAuth } from "@/auth/AuthContext";
 import { useAdminTheme } from "@/theme/AdminTheme";
 import { pageTransition } from "@/motion/spring";
@@ -148,8 +148,9 @@ function AdminLayoutShell() {
             role="status"
             aria-live="polite"
             aria-busy
+            aria-label={label}
           >
-            <LoadingIndicator size={72} color="var(--md-sys-color-primary)" aria-label={label} />
+            <MaterialLoaderRing className="material-loader" size="6rem" />
           </motion.div>
         ) : null}
       </AnimatePresence>

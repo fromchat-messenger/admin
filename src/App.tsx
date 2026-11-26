@@ -25,7 +25,10 @@ function RequireAdmin({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   useEffect(() => {
-    dismissBootSplash();
+    const frame = requestAnimationFrame(() => {
+      requestAnimationFrame(() => dismissBootSplash());
+    });
+    return () => cancelAnimationFrame(frame);
   }, []);
 
   return (

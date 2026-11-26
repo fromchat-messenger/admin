@@ -16,10 +16,51 @@ body {
   overflow-x: clip;
   font-family: "Google Sans", system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
-  background: var(--md-sys-color-surface, #fef7ff);
-  color: var(--md-sys-color-on-surface, #1d1b20);
+  background: var(--md-sys-color-surface, var(--fc-surface, #fef7ff));
+  color: var(--md-sys-color-on-surface, var(--fc-on-surface, #1d1b20));
   user-select: none;
   -webkit-user-select: none;
+}
+
+/* In-app pane loader (same classes as index.html boot splash) */
+.material-loader {
+  display: block;
+  width: 6rem;
+  height: 6rem;
+  animation: material-loader-spin 1.2s linear infinite;
+}
+
+.material-loader__track {
+  stroke: color-mix(in srgb, var(--md-sys-color-primary) 20%, transparent);
+}
+
+.material-loader__arc {
+  stroke: var(--md-sys-color-primary);
+  stroke-dasharray: 80 160;
+  stroke-dashoffset: 0;
+  transform-origin: center;
+  animation: material-loader-dash 1.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes material-loader-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes material-loader-dash {
+  0% {
+    stroke-dasharray: 1 160;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 100 160;
+    stroke-dashoffset: -20;
+  }
+  100% {
+    stroke-dasharray: 1 160;
+    stroke-dashoffset: -125;
+  }
 }
 
 #root {
