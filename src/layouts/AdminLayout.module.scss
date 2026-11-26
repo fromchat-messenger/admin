@@ -102,16 +102,14 @@
   position: relative;
   z-index: 2;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: 0.35rem;
+  gap: 0;
   flex-shrink: 0;
   width: 100%;
   padding-block: 0.15rem 0.45rem;
-  text-align: center;
   transition:
-    flex-direction var(--admin-rail-chrome-duration) var(--admin-rail-chrome-easing),
     gap var(--admin-rail-chrome-duration) var(--admin-rail-chrome-easing),
     padding var(--admin-rail-chrome-duration) var(--admin-rail-chrome-easing);
 }
@@ -132,28 +130,36 @@
   gap: 0.05rem;
   line-height: 1.15;
   max-width: 0;
-  max-height: 0;
   margin-inline-start: 0;
   opacity: 0;
   overflow: hidden;
   pointer-events: none;
+  white-space: nowrap;
   transition:
     opacity var(--admin-rail-chrome-duration) var(--admin-rail-chrome-easing),
     max-width var(--admin-rail-chrome-duration) var(--admin-rail-chrome-easing),
-    max-height var(--admin-rail-chrome-duration) var(--admin-rail-chrome-easing),
     margin-inline-start var(--admin-rail-chrome-duration) var(--admin-rail-chrome-easing);
 }
 
 .brandName {
-  font-weight: 700;
-  font-size: 1.05rem;
+  font-family: Montserrat, "Google Sans", system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 1.8125rem;
   letter-spacing: -0.02em;
-  line-height: 1.1;
-  background: linear-gradient(45deg, #9333ea, #6366f1, #3b82f6, #a855f7, #d946ef, #ec4899, #c084fc, #7e22ce);
+  line-height: 2.125rem;
+  background: linear-gradient(
+    90deg,
+    #6366f1 0%,
+    #3b82f6 20%,
+    #9333ea 40%,
+    #a855f7 60%,
+    #d946ef 80%,
+    #ec4899 100%
+  );
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 0 12px rgba(147, 51, 234, 0.35));
+  filter: drop-shadow(0 0 20px rgba(147, 51, 234, 0.5));
 }
 
 .brandAdmin {
@@ -163,21 +169,18 @@
   color: var(--md-sys-color-on-surface);
 }
 
-.rail[data-variant="expanded"] .brand {
-  flex-direction: row;
-  align-items: center;
+.shell[data-rail-expanded="true"] .brand {
+  justify-content: flex-start;
   gap: 0.65rem;
   align-self: stretch;
   margin-inline-start: -20px;
   width: calc(100% + 20px);
   padding-inline: 12px 16px;
   box-sizing: border-box;
-  text-align: start;
 }
 
-.rail[data-variant="expanded"] .brandText {
-  max-width: 8rem;
-  max-height: 3rem;
+.shell[data-rail-expanded="true"] .brandText {
+  max-width: 10rem;
   margin-inline-start: 0;
   opacity: 1;
 }
