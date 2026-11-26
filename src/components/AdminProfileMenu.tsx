@@ -55,13 +55,11 @@ export function AdminProfileMenu({ username, mode, onToggleTheme, onSignOut }: A
         aria-controls={menuId}
         onClick={() => setOpen((value) => !value)}
       >
-        <span className={styles.morphSpacer} aria-hidden />
         <UserAvatar name={username} size="sm" />
         <div className={styles.meta}>
           <span className={styles.name}>{username}</span>
           <span className={styles.role}>Administrator</span>
         </div>
-        <span className={styles.morphSpacer} aria-hidden />
       </button>
 
       {open ? (

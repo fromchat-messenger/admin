@@ -1,3 +1,5 @@
+@use "@/styles/motion" as motion;
+
 .shell {
   position: relative;
   display: grid;
@@ -99,14 +101,20 @@
 }
 
 .brand {
+  position: relative;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 0.35rem;
+  flex-shrink: 0;
   width: 100%;
   padding-block: 0.15rem 0.45rem;
   text-align: center;
+  transition: flex-direction motion.$rail-chrome-duration motion.$rail-chrome-easing,
+    gap motion.$rail-chrome-duration motion.$rail-chrome-easing,
+    padding motion.$rail-chrome-duration motion.$rail-chrome-easing;
 }
 
 .brandLogo {
@@ -120,31 +128,37 @@
 
 .brandText {
   display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  align-items: baseline;
-  justify-content: flex-start;
-  gap: 0.3rem;
-  line-height: 1.2;
-  opacity: var(--_t, 0);
-  max-width: calc(var(--_t, 0) * 12rem);
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.05rem;
+  line-height: 1.15;
+  max-width: 0;
+  max-height: 0;
+  margin-inline-start: 0;
+  opacity: 0;
   overflow: hidden;
   pointer-events: none;
-  white-space: nowrap;
+  transition:
+    opacity motion.$rail-chrome-duration motion.$rail-chrome-easing,
+    max-width motion.$rail-chrome-duration motion.$rail-chrome-easing,
+    max-height motion.$rail-chrome-duration motion.$rail-chrome-easing,
+    margin-inline-start motion.$rail-chrome-duration motion.$rail-chrome-easing;
 }
 
 .brandName {
-  font-weight: 600;
-  font-size: 0.7rem;
+  font-weight: 700;
+  font-size: 1.05rem;
   letter-spacing: -0.02em;
+  line-height: 1.1;
   background: linear-gradient(45deg, #9333ea, #6366f1, #3b82f6, #a855f7, #d946ef, #ec4899, #c084fc, #7e22ce);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 12px rgba(147, 51, 234, 0.35));
 }
 
 .brandAdmin {
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   font-weight: 500;
   letter-spacing: -0.01em;
   color: var(--md-sys-color-on-surface);
@@ -153,7 +167,7 @@
 .rail[data-variant="expanded"] .brand {
   flex-direction: row;
   align-items: center;
-  gap: calc(0.65rem * var(--_t, 0));
+  gap: 0.65rem;
   align-self: stretch;
   margin-inline-start: -20px;
   width: calc(100% + 20px);
@@ -162,9 +176,11 @@
   text-align: start;
 }
 
-.rail[data-variant="expanded"] .brandName,
-.rail[data-variant="expanded"] .brandAdmin {
-  font-size: 0.95rem;
+.rail[data-variant="expanded"] .brandText {
+  max-width: 8rem;
+  max-height: 3rem;
+  margin-inline-start: 0;
+  opacity: 1;
 }
 
 .main {

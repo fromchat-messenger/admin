@@ -1,3 +1,5 @@
+@use "@/styles/motion" as motion;
+
 .root {
   position: relative;
   width: 100%;
@@ -6,6 +8,7 @@
 .trigger {
   display: flex;
   align-items: center;
+  justify-content: center;
   width: 100%;
   min-height: 3.5rem;
   padding: 0.4rem 0.35rem;
@@ -15,6 +18,7 @@
   color: inherit;
   text-align: left;
   cursor: pointer;
+  transition: padding motion.$rail-chrome-duration motion.$rail-chrome-easing;
 
   &:hover {
     background: color-mix(in srgb, var(--md-sys-color-on-surface) 6%, transparent);
@@ -25,23 +29,32 @@
   }
 }
 
-.morphSpacer {
-  flex: calc(1 - var(--_t, 0)) 1 0;
-  min-width: 0;
-  max-width: calc((1 - var(--_t, 0)) * 3rem);
+:global([data-rail-expanded="true"]) .trigger {
+  justify-content: flex-start;
+  padding-inline: 0.35rem;
 }
 
 .meta {
   display: flex;
-  flex: calc(var(--_t, 0) * 1) 1 auto;
   flex-direction: column;
   gap: 0.05rem;
   min-width: 0;
-  max-width: calc(var(--_t, 0) * 11rem);
-  margin-inline-start: calc(0.65rem * var(--_t, 0));
-  opacity: var(--_t, 0);
+  max-width: 0;
+  margin-inline-start: 0;
+  opacity: 0;
   overflow: hidden;
   pointer-events: none;
+  transition:
+    opacity motion.$rail-chrome-duration motion.$rail-chrome-easing,
+    max-width motion.$rail-chrome-duration motion.$rail-chrome-easing,
+    margin-inline-start motion.$rail-chrome-duration motion.$rail-chrome-easing;
+}
+
+:global([data-rail-expanded="true"]) .meta {
+  max-width: 11rem;
+  margin-inline-start: 0.65rem;
+  opacity: 1;
+  flex: 1;
 }
 
 .name {
