@@ -37,8 +37,8 @@ export function AdminTopChrome({
       <div className={styles.brand}>
         <img className={styles.brandLogo} src="/logo-square.png" width={40} height={40} alt="" />
         <div className={styles.brandTitle}>
-          <span className={styles.brandName}>FromChat</span>
-          <span className={styles.brandAdmin}>Admin</span>
+          <div className={styles.brandName}>FromChat</div>
+          <div className={styles.brandAdmin}>Admin</div>
         </div>
       </div>
 
