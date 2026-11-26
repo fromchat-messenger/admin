@@ -59,5 +59,26 @@
 .chartWrap {
   width: 100%;
   min-height: 280px;
+}
+
+.chartFrame {
+  display: flex;
+  width: 100%;
+  align-items: stretch;
+}
+
+.chartAxis {
+  flex: 0 0 2.75rem;
+  min-width: 2.75rem;
+}
+
+.chartPlot {
+  flex: 1;
+  min-width: 0;
   overflow: hidden;
+}
+
+.chartPlotTrack {
+  width: 100%;
+  will-change: transform;
 }

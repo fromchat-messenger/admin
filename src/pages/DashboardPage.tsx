@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { animate, motion, useMotionValue } from "framer-motion";
 import {
   Area,
   AreaChart,
@@ -19,8 +20,6 @@ import page from "@/styles/admin-page.module.scss";
 import styles from "./DashboardPage.module.scss";
 
 const CPU_WINDOW = 60;
-/** Matches ~1s metrics tick — Recharts interpolates Y at each slot instead of sliding the canvas. */
-const CPU_CHART_ANIM_MS = 900;
 
 type TickMessage = {
   type: "tick" | "history";
@@ -67,18 +66,32 @@ export function DashboardPage() {
   const [host, setHost] = useState({ cpu: 0, mem: 0, disk: 0 });
   const [cpuSlots, setCpuSlots] = useState<(number | null)[]>(emptyCpuWindow);
   const [totals, setTotals] = useState<Record<string, number>>({});
-  const [chartMotion, setChartMotion] = useState(false);
+  const plotViewportRef = useRef<HTMLDivElement>(null);
+  const plotSlideX = useMotionValue(0);
+  const rollAfterPaintRef = useRef(false);
+
+  const rollPlot = useCallback(() => {
+    const viewport = plotViewportRef.current;
+    if (!viewport) {
+      return;
+    }
+    const step = viewport.clientWidth / CPU_WINDOW;
+    plotSlideX.set(step);
+    animate(plotSlideX, 0, { duration: 1, ease: "linear" });
+  }, [plotSlideX]);
+
+  useLayoutEffect(() => {
+    if (!rollAfterPaintRef.current) {
+      return;
+    }
+    rollAfterPaintRef.current = false;
+    rollPlot();
+  }, [cpuSlots, rollPlot]);
 
   const displayName = useMemo(() => {
     const name = session?.username ?? "admin";
     return name.length > 24 ? `${name.slice(0, 22)}…` : name;
   }, [session?.username]);
-
-  useEffect(() => {
-    if (!chartMotion && cpuSlots.some((value) => value != null)) {
-      setChartMotion(true);
-    }
-  }, [cpuSlots, chartMotion]);
 
   useEffect(() => {
     if (!session?.token) {
@@ -118,18 +131,25 @@ export function DashboardPage() {
         });
       }
       if (data.type === "tick" && data.host) {
-        setCpuSlots((prev) => pushCpuSample(prev, data.host!.cpu_percent));
+        setCpuSlots((prev) => {
+          const filled = prev.filter((value) => value != null).length;
+          const next = pushCpuSample(prev, data.host!.cpu_percent);
+          if (filled >= CPU_WINDOW) {
+            rollAfterPaintRef.current = true;
+          }
+          return next;
+        });
       } else if (data.cpu_ring?.length) {
-        setChartMotion(false);
+        rollAfterPaintRef.current = false;
+        plotSlideX.set(0);
         setCpuSlots(mergeRingIntoWindow(data.cpu_ring.map((point) => point.cpu_percent)));
-        requestAnimationFrame(() => setChartMotion(true));
       }
       if (data.totals) {
         setTotals(data.totals);
       }
     };
     return () => socket.close();
-  }, [session?.token]);
+  }, [session?.token, plotSlideX]);
 
   const chartData = useMemo(
     () => cpuSlots.map((cpu, index) => ({ index, cpu })),
@@ -193,50 +213,63 @@ export function DashboardPage() {
           </div>
         </div>
         <div className={styles.chartWrap}>
-          <ResponsiveContainer width="100%" height={280}>
-            <AreaChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-              <defs>
-                <linearGradient id="cpuFill" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="var(--md-sys-color-primary)" stopOpacity={0.35} />
-                  <stop offset="100%" stopColor="var(--md-sys-color-primary)" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid
-                strokeDasharray="4 4"
-                stroke="color-mix(in srgb, var(--md-sys-color-outline-variant) 35%, transparent)"
-                vertical={false}
-              />
-              <XAxis dataKey="index" type="number" domain={[0, CPU_WINDOW - 1]} hide />
-              <YAxis
-                domain={[0, 100]}
-                unit="%"
-                width={44}
-                tick={{ fontSize: 12, fill: chartTick }}
-              />
-              <Tooltip
-                formatter={(v) => (v == null ? ["—", "CPU"] : [`${v}%`, "CPU"])}
-                contentStyle={{
-                  background: "var(--md-sys-color-surface-container-high)",
-                  border: "1px solid color-mix(in srgb, var(--md-sys-color-outline-variant) 50%, transparent)",
-                  borderRadius: 12,
-                  color: "var(--md-sys-color-on-surface)",
-                }}
-              />
-              <Area
-                type="monotone"
-                dataKey="cpu"
-                stroke="var(--md-sys-color-primary)"
-                strokeWidth={2}
-                fill="url(#cpuFill)"
-                connectNulls={false}
-                isAnimationActive={chartMotion}
-                animationDuration={chartMotion ? CPU_CHART_ANIM_MS : 0}
-                animationEasing="ease-out"
-                dot={false}
-                activeDot={{ r: 4 }}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
+          <div className={styles.chartFrame}>
+            <div className={styles.chartAxis} aria-hidden>
+              <ResponsiveContainer width="100%" height={280}>
+                <AreaChart data={chartData} margin={{ top: 8, right: 0, left: 0, bottom: 0 }}>
+                  <YAxis
+                    domain={[0, 100]}
+                    unit="%"
+                    width={44}
+                    tick={{ fontSize: 12, fill: chartTick }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+            <div ref={plotViewportRef} className={styles.chartPlot}>
+              <motion.div className={styles.chartPlotTrack} style={{ x: plotSlideX }}>
+                <ResponsiveContainer width="100%" height={280}>
+                  <AreaChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="cpuFill" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="var(--md-sys-color-primary)" stopOpacity={0.35} />
+                        <stop offset="100%" stopColor="var(--md-sys-color-primary)" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid
+                      strokeDasharray="4 4"
+                      stroke="color-mix(in srgb, var(--md-sys-color-outline-variant) 35%, transparent)"
+                      vertical={false}
+                    />
+                    <XAxis dataKey="index" type="number" domain={[0, CPU_WINDOW - 1]} hide />
+                    <YAxis domain={[0, 100]} hide width={0} />
+                    <Tooltip
+                      formatter={(v) => (v == null ? ["—", "CPU"] : [`${v}%`, "CPU"])}
+                      contentStyle={{
+                        background: "var(--md-sys-color-surface-container-high)",
+                        border: "1px solid color-mix(in srgb, var(--md-sys-color-outline-variant) 50%, transparent)",
+                        borderRadius: 12,
+                        color: "var(--md-sys-color-on-surface)",
+                      }}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="cpu"
+                      stroke="var(--md-sys-color-primary)"
+                      strokeWidth={2}
+                      fill="url(#cpuFill)"
+                      connectNulls={false}
+                      isAnimationActive={false}
+                      dot={false}
+                      activeDot={{ r: 4 }}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </motion.div>
+            </div>
+          </div>
         </div>
       </section>
     </div>
