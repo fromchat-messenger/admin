@@ -8,14 +8,16 @@ type AdminProfileMenuProps = {
   username: string;
   userId: number;
   onSignOut: () => void;
-  mode: "light" | "dark";
-  onToggleTheme: () => void;
+  showThemeToggle?: boolean;
+  mode?: "light" | "dark";
+  onToggleTheme?: () => void;
 };
 
 export function AdminProfileMenu({
   username,
   userId,
   onSignOut,
+  showThemeToggle = false,
   mode,
   onToggleTheme,
 }: AdminProfileMenuProps) {
@@ -29,13 +31,15 @@ export function AdminProfileMenu({
 
   return (
     <div className={styles.toolbar}>
-      <IconButton
-        variant="standard"
-        size="sm"
-        aria-label={themeLabel}
-        onClick={onToggleTheme}
-        icon={<span className="material-symbols-rounded">{themeIcon}</span>}
-      />
+      {showThemeToggle && onToggleTheme ? (
+        <IconButton
+          variant="standard"
+          size="sm"
+          aria-label={themeLabel}
+          onClick={onToggleTheme}
+          icon={<span className="material-symbols-rounded">{themeIcon}</span>}
+        />
+      ) : null}
 
       <button
         type="button"

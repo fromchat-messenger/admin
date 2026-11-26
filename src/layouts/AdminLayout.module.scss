@@ -58,7 +58,17 @@
 }
 
 .rail :global([class*="_footer_"]) {
-  display: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding-inline: 0 !important;
+  padding-block-start: 0.5rem;
+}
+
+.rail :global([class*="_footer_"] > [data-rail-entry]) {
+  margin-inline-start: 0 !important;
+  align-self: center;
 }
 
 .rail[data-arrangement="center"] :global([class*="_items_"]) {
