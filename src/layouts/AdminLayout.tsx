@@ -2,6 +2,7 @@ import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import Button from "m3-expressive-react/Button";
 import { useAuth } from "@/auth/AuthContext";
+import { useAdminTheme } from "@/theme/AdminTheme";
 import { pageTransition } from "@/motion/spring";
 import { UserAvatar } from "@/components/UserAvatar";
 import styles from "./AdminLayout.module.scss";
@@ -45,6 +46,7 @@ const ROUTE_TITLES: Record<string, string> = {
 
 export function AdminLayout() {
   const { session, logout } = useAuth();
+  const { mode, toggleMode } = useAdminTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const pageTitle = ROUTE_TITLES[location.pathname] ?? "Admin";
@@ -132,6 +134,14 @@ export function AdminLayout() {
           >
             <button type="button" className={styles.iconBtn} aria-label="Notifications">
               <span className="material-symbols-rounded">notifications</span>
+            </button>
+            <button
+              type="button"
+              className={styles.iconBtn}
+              aria-label={mode === "dark" ? "Switch to light theme" : "Switch to dark theme"}
+              onClick={toggleMode}
+            >
+              <span className="material-symbols-rounded">{mode === "dark" ? "light_mode" : "dark_mode"}</span>
             </button>
             <div className={styles.profileChip}>
               <UserAvatar name={session?.username ?? "Admin"} size="sm" />

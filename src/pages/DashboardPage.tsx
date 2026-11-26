@@ -11,6 +11,7 @@ import {
 } from "recharts";
 import LoadingIndicator from "m3-expressive-react/LoadingIndicator";
 import { useAuth } from "@/auth/AuthContext";
+import { useAdminTheme } from "@/theme/AdminTheme";
 import { apiFetch } from "@/api/client";
 import { apiWebSocketUrl } from "@/config";
 import { PageHeader } from "@/components/PageHeader";
@@ -34,6 +35,8 @@ function formatNumber(n: number | undefined) {
 
 export function DashboardPage() {
   const { session } = useAuth();
+  const { mode } = useAdminTheme();
+  const chartTick = mode === "dark" ? "rgba(230, 225, 240, 0.75)" : "rgba(29, 27, 32, 0.65)";
   const [connected, setConnected] = useState(false);
   const [host, setHost] = useState({ cpu: 0, mem: 0, disk: 0 });
   const [cpuSeries, setCpuSeries] = useState<{ t: string; v: number }[]>([]);
@@ -195,8 +198,21 @@ export function DashboardPage() {
                 vertical={false}
               />
               <XAxis dataKey="t" hide />
-              <YAxis domain={[0, 100]} unit="%" width={44} tick={{ fontSize: 12 }} />
-              <Tooltip formatter={(v) => [`${v}%`, "CPU"]} />
+              <YAxis
+                domain={[0, 100]}
+                unit="%"
+                width={44}
+                tick={{ fontSize: 12, fill: chartTick }}
+              />
+              <Tooltip
+                formatter={(v) => [`${v}%`, "CPU"]}
+                contentStyle={{
+                  background: "var(--md-sys-color-surface-container-high)",
+                  border: "1px solid color-mix(in srgb, var(--md-sys-color-outline-variant) 50%, transparent)",
+                  borderRadius: 12,
+                  color: "var(--md-sys-color-on-surface)",
+                }}
+              />
               <Area
                 type="monotone"
                 dataKey="v"

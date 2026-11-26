@@ -2,7 +2,7 @@
   display: grid;
   grid-template-columns: 1fr;
   min-height: 100dvh;
-  background: var(--admin-canvas);
+  background: var(--md-sys-color-surface-container-low);
 
   @media (min-width: 900px) {
     grid-template-columns: var(--admin-sidebar-width) 1fr;
@@ -174,7 +174,8 @@
   gap: 1rem;
   min-height: var(--admin-topbar-height);
   padding: 0 1.25rem;
-  background: color-mix(in srgb, var(--admin-canvas) 88%, var(--md-sys-color-surface));
+  background: color-mix(in srgb, var(--md-sys-color-surface-container-low) 92%, transparent);
+  color: var(--md-sys-color-on-surface);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid color-mix(in srgb, var(--md-sys-color-outline) 12%, transparent);
 }
@@ -191,6 +192,7 @@
   font-size: 1.15rem;
   font-weight: 500;
   letter-spacing: -0.02em;
+  color: var(--md-sys-color-on-surface);
 }
 
 .topbarEnd {
@@ -206,7 +208,8 @@
   border-radius: 12px;
   display: none;
   place-items: center;
-  background: var(--md-sys-color-surface-container);
+  background: var(--md-sys-color-surface-container-high);
+  border: 1px solid color-mix(in srgb, var(--md-sys-color-outline-variant) 40%, transparent);
   color: var(--md-sys-color-on-surface);
   cursor: pointer;
 
@@ -221,8 +224,8 @@
   gap: 0.65rem;
   padding: 0.35rem 0.75rem 0.35rem 0.4rem;
   border-radius: 999px;
-  background: var(--md-sys-color-surface-container-low);
-  border: 1px solid color-mix(in srgb, var(--md-sys-color-outline) 15%, transparent);
+  background: var(--md-sys-color-surface-container-high);
+  border: 1px solid color-mix(in srgb, var(--md-sys-color-outline-variant) 45%, transparent);
 
   @media (min-width: 720px) {
     display: flex;

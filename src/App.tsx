@@ -1,6 +1,6 @@
 import "m3-expressive-react/styles.css";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-import { ThemeProvider } from "m3-expressive-react";
+import { AdminThemeProvider } from "@/theme/AdminTheme";
 import { AuthProvider, useAuth } from "@/auth/AuthContext";
 import { AdminLayout } from "@/layouts/AdminLayout";
 import { LoginRoot } from "@/pages/LoginPage";
@@ -23,7 +23,7 @@ function RequireAdmin({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   return (
-    <ThemeProvider seedColor="#4F5B93" mode="light">
+    <AdminThemeProvider>
       <AuthProvider>
         <BrowserRouter>
           <Routes>
@@ -49,6 +49,6 @@ export default function App() {
           </Routes>
         </BrowserRouter>
       </AuthProvider>
-    </ThemeProvider>
+    </AdminThemeProvider>
   );
 }
