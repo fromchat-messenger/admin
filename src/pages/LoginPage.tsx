@@ -1,9 +1,13 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
 import TextField from "m3-expressive-react/TextField";
 import { useAuth } from "@/auth/AuthContext";
 import { LoginSubmitButton } from "@/components/LoginSubmitButton";
+import { pageTransition } from "@/motion/spring";
 import styles from "./LoginPage.module.scss";
+
+const ERROR_VISIBLE_MS = 3000;
 
 export function LoginPage() {
   const { session, login } = useAuth();
@@ -15,6 +19,14 @@ export function LoginPage() {
   if (session) {
     return <Navigate to="/dashboard" replace />;
   }
+
+  useEffect(() => {
+    if (!error) {
+      return;
+    }
+    const timeout = window.setTimeout(() => setError(null), ERROR_VISIBLE_MS);
+    return () => window.clearTimeout(timeout);
+  }, [error]);
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
@@ -73,11 +85,21 @@ export function LoginPage() {
             autoComplete="current-password"
             required
           />
-          {error ? (
-            <p className={styles.error} role="alert">
-              {error}
-            </p>
-          ) : null}
+          <AnimatePresence initial={false}>
+            {error ? (
+              <motion.p
+                key={error}
+                className={styles.error}
+                role="alert"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={pageTransition}
+              >
+                {error}
+              </motion.p>
+            ) : null}
+          </AnimatePresence>
           <LoginSubmitButton loading={loading} />
         </form>
       </div>
