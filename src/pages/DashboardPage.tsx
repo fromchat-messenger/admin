@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/auth/AuthContext";
 import { useMainPaneBusy } from "@/layout/MainPaneBusy";
 import { apiFetch } from "@/api/client";
 import { apiWebSocketUrl } from "@/config";
+import { useReconnectingWebSocket } from "@/ws/useReconnectingWebSocket";
 import { CpuUsageChart } from "@/components/CpuUsageChart";
 import { PageHeader } from "@/components/PageHeader";
 import { StatCard } from "@/components/StatCard";
@@ -57,7 +58,6 @@ function pushCpuSample(prev: (number | null)[], sample: number): (number | null)
 
 export function DashboardPage() {
   const { session } = useAuth();
-  const [connected, setConnected] = useState(false);
   const [metricsLive, setMetricsLive] = useState(false);
   const [host, setHost] = useState({ cpu: 0, mem: 0, disk: 0 });
   const [cpuSlots, setCpuSlots] = useState<(number | null)[]>(emptyCpuWindow);
@@ -91,37 +91,38 @@ export function DashboardPage() {
     };
   }, [session?.token]);
 
-  useEffect(() => {
-    if (!session?.token) {
-      return;
+  const metricsWsUrl = session?.token
+    ? apiWebSocketUrl(`/admin/ws/metrics?token=${encodeURIComponent(session.token)}`)
+  : null;
+
+  const onMetricsMessage = useCallback((payload: string) => {
+    const data = JSON.parse(payload) as TickMessage;
+    if (messageHasLiveMetrics(data)) {
+      setMetricsLive(true);
     }
-    const url = apiWebSocketUrl(`/admin/ws/metrics?token=${encodeURIComponent(session.token)}`);
-    const socket = new WebSocket(url);
-    socket.onopen = () => setConnected(true);
-    socket.onclose = () => setConnected(false);
-    socket.onmessage = (event) => {
-      const data = JSON.parse(event.data) as TickMessage;
-      if (messageHasLiveMetrics(data)) {
-        setMetricsLive(true);
-      }
-      if (data.host) {
-        setHost({
-          cpu: data.host.cpu_percent,
-          mem: data.host.memory_percent,
-          disk: data.host.disk_percent,
-        });
-      }
-      if (data.type === "tick" && data.host) {
-        setCpuSlots((prev) => pushCpuSample(prev, data.host!.cpu_percent));
-      } else if (data.cpu_ring?.length) {
-        setCpuSlots(mergeRingIntoWindow(data.cpu_ring.map((point) => point.cpu_percent)));
-      }
-      if (data.totals) {
-        setTotals(data.totals);
-      }
-    };
-    return () => socket.close();
-  }, [session?.token]);
+    if (data.host) {
+      setHost({
+        cpu: data.host.cpu_percent,
+        mem: data.host.memory_percent,
+        disk: data.host.disk_percent,
+      });
+    }
+    if (data.type === "tick" && data.host) {
+      setCpuSlots((prev) => pushCpuSample(prev, data.host!.cpu_percent));
+    } else if (data.cpu_ring?.length) {
+      setCpuSlots(mergeRingIntoWindow(data.cpu_ring.map((point) => point.cpu_percent)));
+    }
+    if (data.totals) {
+      setTotals(data.totals);
+    }
+  }, []);
+
+  const connected = useReconnectingWebSocket({
+    url: metricsWsUrl,
+    token: session?.token,
+    enabled: Boolean(session?.token),
+    onMessage: onMetricsMessage,
+  });
 
   const statCards = useMemo(
     () => [

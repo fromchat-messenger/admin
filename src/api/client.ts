@@ -1,4 +1,5 @@
 import { API_BASE_URL } from "@/config";
+import { notifyServerLikelyReachable } from "@/ws/adminWebSocketCoordinator";
 
 export class ApiError extends Error {
   status: number;
@@ -31,6 +32,10 @@ export async function apiFetch<T>(
       ...(init.headers as Record<string, string> | undefined),
     },
   });
+  if (res.ok && token) {
+    notifyServerLikelyReachable(true);
+  }
+
   if (!res.ok) {
     let detail = res.statusText;
     try {
