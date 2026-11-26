@@ -1,41 +1,56 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { pageTransition } from "@/motion/spring";
+import { useLayoutEffect, useRef, useState } from "react";
 import styles from "./LoginErrorBanner.module.scss";
 
-const layoutTransition = {
-  ...pageTransition,
-  damping: 36,
-  bounce: 0,
-};
+const EASE = [0.32, 0, 0.2, 1] as const;
 
-const contentFade = {
-  duration: 0.16,
-  ease: [0.2, 0, 0, 1] as const,
-};
+const shellEnter = { duration: 0.2, ease: EASE };
+const shellExit = { duration: 0.13, ease: EASE };
+
+const bodyEnter = { delay: 0.11, duration: 0.09, ease: EASE };
+const bodyExit = { duration: 0.06, ease: EASE };
 
 type LoginErrorBannerProps = {
   message: string | null;
 };
 
 export function LoginErrorBanner({ message }: LoginErrorBannerProps) {
+  const innerRef = useRef<HTMLDivElement>(null);
+  const [height, setHeight] = useState(0);
+
+  useLayoutEffect(() => {
+    if (!message) {
+      setHeight(0);
+      return;
+    }
+    const measure = () => {
+      const next = innerRef.current?.scrollHeight ?? 0;
+      if (next > 0) {
+        setHeight(next);
+      }
+    };
+    measure();
+    requestAnimationFrame(measure);
+  }, [message]);
+
   return (
     <AnimatePresence initial={false}>
       {message ? (
         <motion.div
           key={message}
           className={styles.shell}
-          initial={{ gridTemplateRows: "0fr" }}
-          animate={{ gridTemplateRows: "1fr" }}
-          exit={{ gridTemplateRows: "0fr", transition: { ...layoutTransition, delay: 0.14 } }}
-          transition={layoutTransition}
+          initial={{ height: 0 }}
+          animate={{ height }}
+          exit={{ height: 0, transition: shellExit }}
+          transition={shellEnter}
         >
-          <div className={styles.clip}>
+          <div ref={innerRef} className={styles.inner}>
             <motion.p
               className={styles.body}
               role="alert"
               initial={{ opacity: 0 }}
-              animate={{ opacity: 1, transition: { ...contentFade, delay: 0.1 } }}
-              exit={{ opacity: 0, transition: contentFade }}
+              animate={{ opacity: 1, transition: bodyEnter }}
+              exit={{ opacity: 0, transition: bodyExit }}
             >
               {message}
             </motion.p>

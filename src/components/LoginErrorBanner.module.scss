@@ -1,13 +1,10 @@
 .shell {
-  display: grid;
   overflow: hidden;
   min-height: 0;
-  contain: layout paint;
 }
 
-.clip {
-  overflow: hidden;
-  min-height: 0;
+.inner {
+  /* Natural block height; shell clips while height tweens. */
 }
 
 .body {
