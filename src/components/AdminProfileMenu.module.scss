@@ -1,5 +1,3 @@
-@use "../styles/motion" as motion;
-
 .root {
   position: relative;
   width: 100%;
@@ -18,7 +16,7 @@
   color: inherit;
   text-align: left;
   cursor: pointer;
-  transition: padding motion.$rail-chrome-duration motion.$rail-chrome-easing;
+  transition: padding var(--admin-rail-chrome-duration) var(--admin-rail-chrome-easing);
 
   &:hover {
     background: color-mix(in srgb, var(--md-sys-color-on-surface) 6%, transparent);
@@ -45,9 +43,9 @@
   overflow: hidden;
   pointer-events: none;
   transition:
-    opacity motion.$rail-chrome-duration motion.$rail-chrome-easing,
-    max-width motion.$rail-chrome-duration motion.$rail-chrome-easing,
-    margin-inline-start motion.$rail-chrome-duration motion.$rail-chrome-easing;
+    opacity var(--admin-rail-chrome-duration) var(--admin-rail-chrome-easing),
+    max-width var(--admin-rail-chrome-duration) var(--admin-rail-chrome-easing),
+    margin-inline-start var(--admin-rail-chrome-duration) var(--admin-rail-chrome-easing);
 }
 
 :global([data-rail-expanded="true"]) .meta {
