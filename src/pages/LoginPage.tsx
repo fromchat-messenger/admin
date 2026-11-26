@@ -84,8 +84,10 @@ export function LoginPage() {
             autoComplete="current-password"
             required
           />
-          <LoginErrorBanner message={error} />
-          <LoginSubmitButton loading={loading} />
+          <div className={styles.submitBlock}>
+            <LoginErrorBanner message={error} />
+            <LoginSubmitButton loading={loading} />
+          </div>
         </form>
       </div>
     </div>
