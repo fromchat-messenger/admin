@@ -7,20 +7,19 @@
   background: var(--md-sys-color-surface);
 
   @media (min-width: 900px) {
-    grid-template-columns: var(--admin-sidebar-width) 1fr;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: stretch;
   }
 }
 
-.sidebar {
+.rail {
   display: none;
-  flex-direction: column;
-  background: var(--md-sys-color-surface-container);
-  color: var(--md-sys-color-on-surface);
-  border-right: 1px solid color-mix(in srgb, var(--md-sys-color-outline-variant) 55%, transparent);
-  padding: 1.1rem 0.75rem 1rem;
   position: sticky;
   top: 0;
   height: 100dvh;
+  z-index: 5;
+  background-color: var(--md-sys-color-surface-container) !important;
+  border: 0;
 
   @media (min-width: 900px) {
     display: flex;
@@ -29,9 +28,13 @@
 
 .brand {
   display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.25rem 0.4rem 1.1rem;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.15rem 0 0.35rem;
+  width: 100%;
+  max-width: calc(96px + (var(--_expanded-w, 220px) - 96px) * var(--_t, 0));
+  overflow: hidden;
 }
 
 .brandLogo {
@@ -40,68 +43,36 @@
   border-radius: 14px;
   object-fit: cover;
   box-shadow: 0 2px 8px color-mix(in srgb, var(--md-sys-color-shadow) 18%, transparent);
+  margin-inline-start: calc((56px - 2.75rem) / 2 * (1 - var(--_t, 0)));
 }
 
 .brandText {
   display: flex;
-  flex-direction: column;
-  gap: 0.1rem;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: baseline;
+  gap: 0.35rem;
+  padding-inline-start: calc(20px * var(--_t, 0));
+  opacity: calc(0.35 + 0.65 * var(--_t, 0));
+  white-space: nowrap;
+  line-height: 1.15;
 }
 
 .brandName {
   font-weight: 500;
-  font-size: 1.05rem;
+  font-size: calc(0.72rem + 0.2rem * var(--_t, 0));
   letter-spacing: -0.02em;
+  color: var(--md-sys-color-on-surface);
 }
 
-.brandTag {
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--md-sys-color-on-surface-variant);
-}
-
-.sideNav {
-  flex: 1;
-  overflow: auto;
-  padding-right: 0.1rem;
-}
-
-.sidebarFoot {
-  padding-top: 0.75rem;
-  border-top: 1px solid color-mix(in srgb, var(--md-sys-color-outline-variant) 45%, transparent);
-}
-
-.sidebarUser {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-  padding: 0.5rem 0.45rem;
-}
-
-.sidebarLogout {
-  flex-shrink: 0;
-  margin-left: auto;
-}
-
-.sidebarUserMeta {
-  display: flex;
-  flex-direction: column;
-  gap: 0.05rem;
-  min-width: 0;
-}
-
-.sidebarUserName {
-  font-size: 0.85rem;
-  font-weight: 500;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.sidebarUserRole {
-  font-size: 0.72rem;
-  color: var(--md-sys-color-on-surface-variant);
+.brandAdmin {
+  font-size: calc(0.72rem + 0.2rem * var(--_t, 0));
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  background: linear-gradient(45deg, #9333ea, #6366f1, #3b82f6, #a855f7, #d946ef, #ec4899, #c084fc, #7e22ce);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .main {
@@ -111,7 +82,17 @@
   min-width: 0;
   min-height: 100dvh;
   overflow: clip;
-  background: var(--md-sys-color-surface-container-low);
+  background: var(--md-sys-color-surface);
+  border-start-start-radius: 0;
+  transition:
+    border-radius var(--md-sys-motion-spring-default-spatial-duration, 500ms)
+      var(--md-sys-motion-easing-emphasized, cubic-bezier(0.2, 0, 0, 1));
+
+  @media (min-width: 900px) {
+    .shell[data-rail-expanded="true"] & {
+      border-start-start-radius: 1rem;
+    }
+  }
 }
 
 .mainPaneOverlay {
@@ -138,39 +119,6 @@
   overflow: clip;
 }
 
-.topbar {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  min-height: var(--admin-topbar-height);
-  padding: 0 1.25rem;
-  background: color-mix(in srgb, var(--md-sys-color-surface-container-low) 94%, transparent);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid color-mix(in srgb, var(--md-sys-color-outline-variant) 45%, transparent);
-}
-
-.topbarStart {
-  min-width: 0;
-}
-
-.crumb {
-  margin: 0;
-  font-size: 1.1rem;
-  font-weight: 500;
-  letter-spacing: -0.02em;
-  color: var(--md-sys-color-on-surface);
-}
-
-.topbarEnd {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-}
-
 .content {
   width: 100%;
   max-width: 1400px;
@@ -193,8 +141,7 @@
   justify-content: space-around;
   gap: 0.15rem;
   padding: 0.4rem 0.35rem calc(0.4rem + env(safe-area-inset-bottom));
-  background: color-mix(in srgb, var(--md-sys-color-surface-container) 95%, transparent);
-  backdrop-filter: blur(16px);
+  background: var(--md-sys-color-surface-container);
   border-top: 1px solid color-mix(in srgb, var(--md-sys-color-outline-variant) 45%, transparent);
 
   @media (min-width: 900px) {

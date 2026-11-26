@@ -5,7 +5,9 @@ import { AuthProvider, useAuth } from "@/auth/AuthContext";
 import { AdminLayout } from "@/layouts/AdminLayout";
 import { LoginRoot } from "@/pages/LoginPage";
 import { DashboardPage } from "@/pages/DashboardPage";
+import { AccountsLayout } from "@/layouts/AccountsLayout";
 import { AccountsPage } from "@/pages/AccountsPage";
+import { AccountUserPage } from "@/pages/AccountUserPage";
 import { FilesPage } from "@/pages/FilesPage";
 import { ModerationPage } from "@/pages/ModerationPage";
 import { CompliancePage } from "@/pages/CompliancePage";
@@ -38,7 +40,10 @@ export default function App() {
             >
               <Route index element={<Navigate to="/dashboard" replace />} />
               <Route path="dashboard" element={<DashboardPage />} />
-              <Route path="accounts" element={<AccountsPage />} />
+              <Route path="accounts" element={<AccountsLayout />}>
+                <Route index element={<AccountsPage />} />
+                <Route path=":userId" element={<AccountUserPage />} />
+              </Route>
               <Route path="files" element={<FilesPage />} />
               <Route path="moderation" element={<ModerationPage />} />
               <Route path="compliance" element={<CompliancePage />} />

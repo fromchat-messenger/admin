@@ -21,19 +21,12 @@
   line-height: 1.45;
 }
 
-.toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  align-items: flex-end;
+.searchDock {
+  max-width: 100%;
 
-  @media (max-width: 640px) {
-    flex-direction: column;
-    align-items: stretch;
-
-    :global([class*="TextField"]) {
-      width: 100%;
-    }
+  :global([class*="SearchBar"]) {
+    width: 100%;
+    max-width: 40rem;
   }
 }
 
@@ -83,6 +76,16 @@
   }
 }
 
+.clickableRow {
+  cursor: pointer;
+}
+
+.flagWrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
 .userCell {
   display: flex;
   align-items: center;
@@ -98,17 +101,6 @@
     font-weight: 500;
     font-size: 0.95rem;
   }
-}
-
-.verifiedRow {
-  margin-top: 0.35rem;
-}
-
-.actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
-  justify-content: flex-end;
 }
 
 .pager {

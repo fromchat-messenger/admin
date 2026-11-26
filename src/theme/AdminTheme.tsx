@@ -58,7 +58,7 @@ export function AdminThemeProvider({ children }: { children: ReactNode }) {
       <ThemeProvider
         seedColor="#4F5B93"
         mode={mode}
-        motionScheme="standard"
+        motionScheme="expressive"
         as="div"
         style={{
           minHeight: "100dvh",

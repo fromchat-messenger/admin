@@ -1,0 +1,11 @@
+.stack {
+  position: relative;
+  overflow: clip;
+  min-height: min(100%, 60vh);
+}
+
+.layer {
+  width: 100%;
+  background: var(--md-sys-color-surface);
+  will-change: transform, opacity;
+}

@@ -1,50 +1,28 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import IconButton from "m3-expressive-react/IconButton";
 import LoadingIndicator from "m3-expressive-react/LoadingIndicator";
+import NavigationRail, {
+  NavigationRailAction,
+  NavigationRailItem,
+  type NavigationRailVariant,
+} from "m3-expressive-react/NavigationRail";
 import { useAuth } from "@/auth/AuthContext";
 import { useAdminTheme } from "@/theme/AdminTheme";
 import { pageTransition } from "@/motion/spring";
-import { UserAvatar } from "@/components/UserAvatar";
-import { SidebarNav, type SidebarNavItem } from "@/components/SidebarNav";
+import { AdminProfileMenu } from "@/components/AdminProfileMenu";
 import { MainPaneBusyProvider, useMainPaneBusyContext } from "@/layout/MainPaneBusy";
 import styles from "./AdminLayout.module.scss";
 
-const NAV_GROUPS: { label: string; items: SidebarNavItem[] }[] = [
-  {
-    label: "Workspace",
-    items: [
-      { to: "/dashboard", icon: "space_dashboard", label: "Dashboard" },
-      { to: "/accounts", icon: "group", label: "Accounts" },
-      { to: "/files", icon: "folder_open", label: "Files" },
-    ],
-  },
-  {
-    label: "Trust & safety",
-    items: [
-      { to: "/moderation", icon: "gpp_good", label: "Moderation" },
-      { to: "/compliance", icon: "inventory_2", label: "Compliance" },
-    ],
-  },
-  {
-    label: "System",
-    items: [
-      { to: "/settings", icon: "tune", label: "Settings" },
-      { to: "/tools", icon: "build", label: "Tools" },
-    ],
-  },
-];
-
-const ROUTE_TITLES: Record<string, string> = {
-  "/dashboard": "Dashboard",
-  "/accounts": "Accounts",
-  "/files": "Files",
-  "/moderation": "Moderation",
-  "/compliance": "Compliance",
-  "/settings": "Settings",
-  "/tools": "Tools",
-};
+const NAV_ITEMS = [
+  { value: "/dashboard", icon: "space_dashboard", label: "Dashboard" },
+  { value: "/accounts", icon: "group", label: "Accounts" },
+  { value: "/files", icon: "folder_open", label: "Files" },
+  { value: "/moderation", icon: "gpp_good", label: "Moderation" },
+  { value: "/compliance", icon: "inventory_2", label: "Compliance" },
+  { value: "/settings", icon: "tune", label: "Settings" },
+  { value: "/tools", icon: "build", label: "Tools" },
+] as const;
 
 const adminEnter = {
   ...pageTransition,
@@ -55,6 +33,11 @@ const pageShift = {
   ...pageTransition,
   mass: 0.55,
 };
+
+function navValue(pathname: string) {
+  const item = NAV_ITEMS.find((entry) => pathname.startsWith(entry.value));
+  return item?.value ?? "/dashboard";
+}
 
 export function AdminLayout() {
   return (
@@ -76,9 +59,12 @@ function AdminLayoutShell() {
   const [paneOverlayVisible, setPaneOverlayVisible] = useState(true);
   const [paneOverlayFading, setPaneOverlayFading] = useState(false);
   const [paneContentRevealed, setPaneContentRevealed] = useState(false);
-  const pageTitle = ROUTE_TITLES[location.pathname] ?? "Admin";
   const showPaneOverlay = paneOverlayVisible || paneOverlayFading;
-  const mobileNav = NAV_GROUPS.flatMap((group) => group.items);
+  const overlayKey = location.pathname.replace(/\/accounts\/\d+.*/, "/accounts");
+  const railValue = navValue(location.pathname);
+  const mobileNav = NAV_ITEMS;
+  const [railVariant, setRailVariant] = useState<NavigationRailVariant>("collapsed");
+  const railExpanded = railVariant === "expanded";
 
   useEffect(() => {
     clearedLoginStateRef.current = false;
@@ -94,7 +80,7 @@ function AdminLayoutShell() {
       setPaneContentRevealed(true);
     });
     return () => cancelAnimationFrame(frame);
-  }, [location.pathname]);
+  }, [overlayKey]);
 
   useEffect(() => {
     if (!paneOverlayVisible || paneOverlayFading || !paneContentRevealed) {
@@ -119,12 +105,7 @@ function AdminLayoutShell() {
       }
     }, 64);
     return () => window.clearTimeout(timeout);
-  }, [location.pathname, busy, paneContentRevealed, paneOverlayFading, paneOverlayVisible]);
-
-  function finishPaneOverlayFade() {
-    setPaneOverlayVisible(false);
-    setPaneOverlayFading(false);
-  }
+  }, [overlayKey, busy, paneContentRevealed, paneOverlayFading, paneOverlayVisible]);
 
   useEffect(() => {
     if (!paneOverlayFading) {
@@ -134,6 +115,11 @@ function AdminLayoutShell() {
     return () => window.clearTimeout(timeout);
   }, [paneOverlayFading]);
 
+  function finishPaneOverlayFade() {
+    setPaneOverlayVisible(false);
+    setPaneOverlayFading(false);
+  }
+
   function signOut() {
     logout();
     navigate("/login", { replace: true });
@@ -142,6 +128,7 @@ function AdminLayoutShell() {
   return (
     <motion.div
       className={styles.shell}
+      data-rail-expanded={railExpanded ? "true" : "false"}
       initial={fromLogin ? { opacity: 0, scale: 0.985 } : false}
       animate={{ opacity: 1, scale: 1 }}
       transition={adminEnter}
@@ -153,61 +140,54 @@ function AdminLayoutShell() {
         }
       }}
     >
-      <aside className={styles.sidebar}>
-        <motion.div className={styles.brand} initial={false} animate={{ opacity: 1 }} transition={pageTransition}>
-          <img className={styles.brandLogo} src="/logo-square.png" width={44} height={44} alt="" />
-          <div className={styles.brandText}>
-            <span className={styles.brandName}>FromChat</span>
-            <span className={styles.brandTag}>Admin</span>
-          </div>
-        </motion.div>
-
-        <nav className={styles.sideNav} aria-label="Main">
-          {NAV_GROUPS.map((group) => (
-            <SidebarNav
-              key={group.label}
-              label={group.label}
-              items={group.items}
-              activePath={location.pathname}
+      <NavigationRail
+        className={styles.rail}
+        variant={railVariant}
+        value={railValue}
+        onChange={(_, value) => navigate(value)}
+        header={
+          <>
+            <NavigationRailAction
+              icon={
+                <span className="material-symbols-rounded">
+                  {railExpanded ? "chevron_left" : "menu"}
+                </span>
+              }
+              label={railExpanded ? "Collapse" : "Menu"}
+              aria-label={railExpanded ? "Collapse navigation rail" : "Expand navigation rail"}
+              onClick={() => setRailVariant(railExpanded ? "collapsed" : "expanded")}
             />
-          ))}
-        </nav>
-
-        <div className={styles.sidebarFoot}>
-          <div className={styles.sidebarUser}>
-            <UserAvatar name={session?.username ?? "Admin"} size="sm" />
-            <div className={styles.sidebarUserMeta}>
-              <span className={styles.sidebarUserName}>{session?.username}</span>
-              <span className={styles.sidebarUserRole}>Administrator</span>
+            <div className={styles.brand}>
+              <img className={styles.brandLogo} src="/logo-square.png" width={44} height={44} alt="" />
+              <div className={styles.brandText}>
+                <span className={styles.brandName}>FromChat</span>
+                <span className={styles.brandAdmin}>Admin</span>
+              </div>
             </div>
-            <IconButton
-              className={styles.sidebarLogout}
-              variant="tonal"
-              icon={<span className="material-symbols-rounded">logout</span>}
-              aria-label="Sign out"
-              onClick={signOut}
-            />
-          </div>
-        </div>
-      </aside>
+          </>
+        }
+        footer={
+          <AdminProfileMenu
+            username={session?.username ?? "Admin"}
+            mode={mode}
+            onToggleTheme={toggleMode}
+            onSignOut={signOut}
+            compact={!railExpanded}
+          />
+        }
+      >
+        {NAV_ITEMS.map((item) => (
+          <NavigationRailItem
+            key={item.value}
+            value={item.value}
+            label={item.label}
+            icon={<span className="material-symbols-rounded">{item.icon}</span>}
+            selectedIcon={<span className="material-symbols-rounded">{item.icon}</span>}
+          />
+        ))}
+      </NavigationRail>
 
       <div className={styles.main}>
-        <header className={styles.topbar}>
-          <div className={styles.topbarStart}>
-            <h2 className={styles.crumb}>{pageTitle}</h2>
-          </div>
-          <div className={styles.topbarEnd}>
-            <IconButton
-              variant="tonal"
-              icon={
-                <span className="material-symbols-rounded">{mode === "dark" ? "light_mode" : "dark_mode"}</span>
-              }
-              aria-label={mode === "dark" ? "Switch to light theme" : "Switch to dark theme"}
-              onClick={toggleMode}
-            />
-          </div>
-        </header>
-
         <div className={styles.contentStage}>
           {showPaneOverlay ? (
             <div
@@ -247,14 +227,14 @@ function AdminLayoutShell() {
         <nav className={styles.bottomNav} aria-label="Primary mobile">
           {mobileNav.map((item) => (
             <button
-              key={item.to}
+              key={item.value}
               type="button"
               className={
-                location.pathname.startsWith(item.to)
+                location.pathname.startsWith(item.value)
                   ? `${styles.bottomItem} ${styles.bottomActive}`
                   : styles.bottomItem
               }
-              onClick={() => navigate(item.to)}
+              onClick={() => navigate(item.value)}
             >
               <span className="material-symbols-rounded">{item.icon}</span>
               <span>{item.label}</span>
