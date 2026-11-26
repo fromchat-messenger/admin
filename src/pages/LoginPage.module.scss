@@ -72,5 +72,9 @@
 .submit {
   width: 100%;
   margin-top: 0.35rem;
-  min-height: 3.25rem;
+  /* FromChat Android `CtaShape` = RoundedCornerShape(percent = 38). */
+  --_shape-round: calc(var(--_height) * 0.38);
+  --_shape-square: calc(var(--_height) * 0.38);
+  --_shape-pressed: calc(var(--_height) * 0.32);
+  border-radius: calc(var(--_height) * 0.38);
 }

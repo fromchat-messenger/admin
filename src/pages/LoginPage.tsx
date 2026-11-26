@@ -52,7 +52,6 @@ export function LoginPage() {
           <TextField
             className={styles.field}
             variant="outlined"
-            tonal
             label="Username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
@@ -62,7 +61,6 @@ export function LoginPage() {
           <TextField
             className={styles.field}
             variant="outlined"
-            tonal
             label="Password"
             type="password"
             value={password}
@@ -78,8 +76,8 @@ export function LoginPage() {
           <Button
             type="submit"
             variant="filled"
-            size="xl"
-            shape="round"
+            size="md"
+            shape="square"
             disabled={loading}
             className={styles.submit}
           >
