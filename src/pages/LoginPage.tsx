@@ -1,10 +1,9 @@
 import { FormEvent, useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
-import { AnimatePresence, motion } from "framer-motion";
 import TextField from "m3-expressive-react/TextField";
 import { useAuth } from "@/auth/AuthContext";
+import { LoginErrorBanner } from "@/components/LoginErrorBanner";
 import { LoginSubmitButton } from "@/components/LoginSubmitButton";
-import { pageTransition } from "@/motion/spring";
 import styles from "./LoginPage.module.scss";
 
 const ERROR_VISIBLE_MS = 3000;
@@ -85,21 +84,7 @@ export function LoginPage() {
             autoComplete="current-password"
             required
           />
-          <AnimatePresence initial={false}>
-            {error ? (
-              <motion.p
-                key={error}
-                className={styles.error}
-                role="alert"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={pageTransition}
-              >
-                {error}
-              </motion.p>
-            ) : null}
-          </AnimatePresence>
+          <LoginErrorBanner message={error} />
           <LoginSubmitButton loading={loading} />
         </form>
       </div>

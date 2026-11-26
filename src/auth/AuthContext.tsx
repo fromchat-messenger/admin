@@ -43,12 +43,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback(async (username: string, password: string) => {
     const derived = await deriveAuthSecret(username, password);
     const data = await apiFetch<{
-      token: string;
-      user: { id: number; username: string };
+      status?: string;
+      token?: string;
+      message?: string;
+      user?: { id: number; username: string };
     }>("/auth/steps/password", null, {
       method: "POST",
       body: JSON.stringify({ username, password: derived }),
     });
+
+    if (data.status === "needs_register") {
+      throw new Error("That username is not registered.");
+    }
+    if (!data.token || !data.user?.id) {
+      throw new Error(data.message ?? "Login failed");
+    }
     if (data.user.id !== 1) {
       throw new Error("Only the system administrator can use this panel.");
     }
