@@ -17,21 +17,36 @@
   }
 }
 
-.rail {
+.railColumn {
   display: none;
+
+  @media (min-width: 900px) {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    grid-area: rail;
+    min-height: 0;
+    max-height: calc(100dvh - var(--admin-chrome-height, 3.5rem));
+    gap: 0.75rem;
+    padding-block-end: 1rem;
+  }
+}
+
+.rail {
+  flex: 1;
   align-self: stretch;
-  height: 100% !important;
+  width: 100%;
   min-height: 0;
-  max-height: calc(100dvh - var(--admin-chrome-height, 3.5rem)) !important;
+  height: auto !important;
+  max-height: none !important;
   z-index: 5;
   background-color: var(--md-sys-color-surface-container-low) !important;
   border: 0;
   padding-block: 0.5rem !important;
+}
 
-  @media (min-width: 900px) {
-    display: flex;
-    grid-area: rail;
-  }
+.themeFab {
+  flex-shrink: 0;
 }
 
 .rail[data-variant="expanded"] :global([class*="_items_"] > [data-rail-entry]) {
@@ -58,17 +73,7 @@
 }
 
 .rail :global([class*="_footer_"]) {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  padding-inline: 0 !important;
-  padding-block-start: 0.5rem;
-}
-
-.rail :global([class*="_footer_"] > [data-rail-entry]) {
-  margin-inline-start: 0 !important;
-  align-self: center;
+  display: none;
 }
 
 .rail[data-arrangement="center"] :global([class*="_items_"]) {

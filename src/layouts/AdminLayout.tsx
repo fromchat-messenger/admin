@@ -2,11 +2,8 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import LoadingIndicator from "m3-expressive-react/LoadingIndicator";
-import NavigationRail, {
-  NavigationRailAction,
-  NavigationRailItem,
-  type NavigationRailVariant,
-} from "m3-expressive-react/NavigationRail";
+import Fab from "m3-expressive-react/Fab";
+import NavigationRail, { NavigationRailItem, type NavigationRailVariant } from "m3-expressive-react/NavigationRail";
 import { AdminTopChrome } from "@/components/AdminTopChrome";
 import { AdminProfileMenu } from "@/components/AdminProfileMenu";
 import { useAuth } from "@/auth/AuthContext";
@@ -147,31 +144,37 @@ function AdminLayoutShell() {
         onSignOut={signOut}
       />
 
-      <NavigationRail
-        className={styles.rail}
-        variant={railVariant}
-        arrangement="center"
-        value={railValue}
-        onChange={(_, value) => navigate(value)}
-        footer={
-          <NavigationRailAction
-            icon={<span className="material-symbols-rounded">{mode === "dark" ? "light_mode" : "dark_mode"}</span>}
-            label={mode === "dark" ? "Light" : "Dark"}
-            aria-label={mode === "dark" ? "Light theme" : "Dark theme"}
-            onClick={toggleMode}
-          />
-        }
-      >
-        {NAV_ITEMS.map((item) => (
-          <NavigationRailItem
-            key={item.value}
-            value={item.value}
-            label={item.label}
-            icon={<span className="material-symbols-rounded">{item.icon}</span>}
-            selectedIcon={<span className="material-symbols-rounded">{item.icon}</span>}
-          />
-        ))}
-      </NavigationRail>
+      <div className={styles.railColumn} aria-label="Primary navigation">
+        <NavigationRail
+          className={styles.rail}
+          variant={railVariant}
+          arrangement="center"
+          value={railValue}
+          onChange={(_, value) => navigate(value)}
+        >
+          {NAV_ITEMS.map((item) => (
+            <NavigationRailItem
+              key={item.value}
+              value={item.value}
+              label={item.label}
+              icon={<span className="material-symbols-rounded">{item.icon}</span>}
+              selectedIcon={<span className="material-symbols-rounded">{item.icon}</span>}
+            />
+          ))}
+        </NavigationRail>
+
+        <Fab
+          className={styles.themeFab}
+          size="small"
+          tonal
+          color="secondary"
+          aria-label={mode === "dark" ? "Light theme" : "Dark theme"}
+          onClick={toggleMode}
+          icon={
+            <span className="material-symbols-rounded">{mode === "dark" ? "light_mode" : "dark_mode"}</span>
+          }
+        />
+      </div>
 
       <header className={styles.mobileChrome}>
         <div className={styles.mobileBrand}>
