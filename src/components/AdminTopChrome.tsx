@@ -32,19 +32,17 @@ export function AdminTopChrome({
         >
           {themeLabel}
         </Button>
-      </div>
 
-      <div className={styles.brand}>
-        <img className={styles.brandLogo} src="/logo-square.png" width={40} height={40} alt="" />
-        <div className={styles.brandTitle}>
-          <div className={styles.brandName}>FromChat</div>
-          <div className={styles.brandAdmin}>Admin</div>
+        <div className={styles.brand}>
+          <img className={styles.brandLogo} src="/logo-square.png" width={40} height={40} alt="" />
+          <div className={styles.brandWords}>
+            <div className={styles.brandName}>FromChat</div>
+            <div className={styles.brandAdmin}>Admin</div>
+          </div>
         </div>
       </div>
 
-      <div className={styles.end}>
-        <AdminProfileMenu username={username} userId={userId} onSignOut={onSignOut} />
-      </div>
+      <AdminProfileMenu username={username} userId={userId} onSignOut={onSignOut} />
     </header>
   );
 }
