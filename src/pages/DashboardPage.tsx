@@ -1,19 +1,10 @@
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { animate, motion, useMotionValue } from "framer-motion";
-import {
-  Area,
-  AreaChart,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { useEffect, useMemo, useState } from "react";
 import LoadingIndicator from "m3-expressive-react/LoadingIndicator";
 import { useAuth } from "@/auth/AuthContext";
 import { useAdminTheme } from "@/theme/AdminTheme";
 import { apiFetch } from "@/api/client";
 import { apiWebSocketUrl } from "@/config";
+import { CpuUsageChart } from "@/components/CpuUsageChart";
 import { PageHeader } from "@/components/PageHeader";
 import { StatCard } from "@/components/StatCard";
 import page from "@/styles/admin-page.module.scss";
@@ -61,32 +52,10 @@ function pushCpuSample(prev: (number | null)[], sample: number): (number | null)
 export function DashboardPage() {
   const { session } = useAuth();
   const { mode } = useAdminTheme();
-  const chartTick = mode === "dark" ? "rgba(230, 225, 240, 0.75)" : "rgba(29, 27, 32, 0.65)";
   const [connected, setConnected] = useState(false);
   const [host, setHost] = useState({ cpu: 0, mem: 0, disk: 0 });
   const [cpuSlots, setCpuSlots] = useState<(number | null)[]>(emptyCpuWindow);
   const [totals, setTotals] = useState<Record<string, number>>({});
-  const plotViewportRef = useRef<HTMLDivElement>(null);
-  const plotSlideX = useMotionValue(0);
-  const rollAfterPaintRef = useRef(false);
-
-  const rollPlot = useCallback(() => {
-    const viewport = plotViewportRef.current;
-    if (!viewport) {
-      return;
-    }
-    const step = viewport.clientWidth / CPU_WINDOW;
-    plotSlideX.set(step);
-    animate(plotSlideX, 0, { duration: 1, ease: "linear" });
-  }, [plotSlideX]);
-
-  useLayoutEffect(() => {
-    if (!rollAfterPaintRef.current) {
-      return;
-    }
-    rollAfterPaintRef.current = false;
-    rollPlot();
-  }, [cpuSlots, rollPlot]);
 
   const displayName = useMemo(() => {
     const name = session?.username ?? "admin";
@@ -131,17 +100,8 @@ export function DashboardPage() {
         });
       }
       if (data.type === "tick" && data.host) {
-        setCpuSlots((prev) => {
-          const filled = prev.filter((value) => value != null).length;
-          const next = pushCpuSample(prev, data.host!.cpu_percent);
-          if (filled >= CPU_WINDOW) {
-            rollAfterPaintRef.current = true;
-          }
-          return next;
-        });
+        setCpuSlots((prev) => pushCpuSample(prev, data.host!.cpu_percent));
       } else if (data.cpu_ring?.length) {
-        rollAfterPaintRef.current = false;
-        plotSlideX.set(0);
         setCpuSlots(mergeRingIntoWindow(data.cpu_ring.map((point) => point.cpu_percent)));
       }
       if (data.totals) {
@@ -149,12 +109,7 @@ export function DashboardPage() {
       }
     };
     return () => socket.close();
-  }, [session?.token, plotSlideX]);
-
-  const chartData = useMemo(
-    () => cpuSlots.map((cpu, index) => ({ index, cpu })),
-    [cpuSlots],
-  );
+  }, [session?.token]);
 
   const statCards = useMemo(
     () => [
@@ -212,65 +167,7 @@ export function DashboardPage() {
             ))}
           </div>
         </div>
-        <div className={styles.chartWrap}>
-          <div className={styles.chartFrame}>
-            <div className={styles.chartAxis} aria-hidden>
-              <ResponsiveContainer width="100%" height={280}>
-                <AreaChart data={chartData} margin={{ top: 8, right: 0, left: 0, bottom: 0 }}>
-                  <YAxis
-                    domain={[0, 100]}
-                    unit="%"
-                    width={44}
-                    tick={{ fontSize: 12, fill: chartTick }}
-                    axisLine={false}
-                    tickLine={false}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-            <div ref={plotViewportRef} className={styles.chartPlot}>
-              <motion.div className={styles.chartPlotTrack} style={{ x: plotSlideX }}>
-                <ResponsiveContainer width="100%" height={280}>
-                  <AreaChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="cpuFill" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="var(--md-sys-color-primary)" stopOpacity={0.35} />
-                        <stop offset="100%" stopColor="var(--md-sys-color-primary)" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid
-                      strokeDasharray="4 4"
-                      stroke="color-mix(in srgb, var(--md-sys-color-outline-variant) 35%, transparent)"
-                      vertical={false}
-                    />
-                    <XAxis dataKey="index" type="number" domain={[0, CPU_WINDOW - 1]} hide />
-                    <YAxis domain={[0, 100]} hide width={0} />
-                    <Tooltip
-                      formatter={(v) => (v == null ? ["—", "CPU"] : [`${v}%`, "CPU"])}
-                      contentStyle={{
-                        background: "var(--md-sys-color-surface-container-high)",
-                        border: "1px solid color-mix(in srgb, var(--md-sys-color-outline-variant) 50%, transparent)",
-                        borderRadius: 12,
-                        color: "var(--md-sys-color-on-surface)",
-                      }}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="cpu"
-                      stroke="var(--md-sys-color-primary)"
-                      strokeWidth={2}
-                      fill="url(#cpuFill)"
-                      connectNulls={false}
-                      isAnimationActive={false}
-                      dot={false}
-                      activeDot={{ r: 4 }}
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </motion.div>
-            </div>
-          </div>
-        </div>
+        <CpuUsageChart values={cpuSlots} scheme={mode} />
       </section>
     </div>
   );

@@ -1,0 +1,13 @@
+.host {
+  width: 100%;
+  min-height: 280px;
+
+  :global(.u-over),
+  :global(.u-under) {
+    font-family: "Google Sans", system-ui, sans-serif;
+  }
+
+  :global(.u-legend) {
+    display: none;
+  }
+}
