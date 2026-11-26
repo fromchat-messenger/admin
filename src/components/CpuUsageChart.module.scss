@@ -1,13 +1,25 @@
-.host {
+.svg {
+  display: block;
   width: 100%;
-  min-height: 280px;
+  height: 280px;
+  overflow: visible;
+}
 
-  :global(.u-over),
-  :global(.u-under) {
-    font-family: "Google Sans", system-ui, sans-serif;
-  }
+.gridLine {
+  stroke: color-mix(in srgb, var(--md-sys-color-outline-variant) 35%, transparent);
+  stroke-width: 1;
+  stroke-dasharray: 4 4;
+}
 
-  :global(.u-legend) {
-    display: none;
-  }
+.yLabel {
+  fill: var(--md-sys-color-on-surface-variant);
+  font-size: 12px;
+  font-family: "Google Sans", system-ui, sans-serif;
+}
+
+.line {
+  stroke: var(--md-sys-color-primary);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }

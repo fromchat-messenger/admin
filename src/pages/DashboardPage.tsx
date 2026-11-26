@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import LoadingIndicator from "m3-expressive-react/LoadingIndicator";
 import { useAuth } from "@/auth/AuthContext";
-import { useAdminTheme } from "@/theme/AdminTheme";
 import { apiFetch } from "@/api/client";
 import { apiWebSocketUrl } from "@/config";
 import { CpuUsageChart } from "@/components/CpuUsageChart";
@@ -51,7 +50,6 @@ function pushCpuSample(prev: (number | null)[], sample: number): (number | null)
 
 export function DashboardPage() {
   const { session } = useAuth();
-  const { mode } = useAdminTheme();
   const [connected, setConnected] = useState(false);
   const [host, setHost] = useState({ cpu: 0, mem: 0, disk: 0 });
   const [cpuSlots, setCpuSlots] = useState<(number | null)[]>(emptyCpuWindow);
@@ -167,7 +165,7 @@ export function DashboardPage() {
             ))}
           </div>
         </div>
-        <CpuUsageChart values={cpuSlots} scheme={mode} />
+        <CpuUsageChart values={cpuSlots} />
       </section>
     </div>
   );

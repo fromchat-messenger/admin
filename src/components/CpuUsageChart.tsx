@@ -1,117 +1,125 @@
-import { useCallback, useEffect, useRef } from "react";
-import uPlot from "uplot";
-import "uplot/dist/uPlot.min.css";
+import { useId, useMemo } from "react";
 import styles from "./CpuUsageChart.module.scss";
 
 const WINDOW = 60;
-
-function cssVar(name: string, fallback: string) {
-  if (typeof document === "undefined") {
-    return fallback;
-  }
-  const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-  return value || fallback;
-}
+const HEIGHT = 280;
+const PLOT_LEFT = 46;
+const PLOT_RIGHT = 8;
+const PLOT_TOP = 8;
+const PLOT_BOTTOM = 8;
 
 type CpuUsageChartProps = {
   values: (number | null)[];
-  scheme: "light" | "dark";
 };
 
-function seriesData(values: (number | null)[]) {
-  const x = Array.from({ length: WINDOW }, (_, index) => index);
-  const y = values.map((value) => (value == null ? null : value));
-  return [x, y] as uPlot.AlignedData;
+function buildPath(values: (number | null)[], plotWidth: number, plotHeight: number) {
+  const step = plotWidth / (WINDOW - 1);
+  const toY = (value: number) => PLOT_TOP + plotHeight * (1 - value / 100);
+  let path = "";
+  let penDown = false;
+
+  for (let i = 0; i < WINDOW; i += 1) {
+    const sample = values[i];
+    if (sample == null) {
+      penDown = false;
+      continue;
+    }
+    const x = PLOT_LEFT + i * step;
+    const y = toY(sample);
+    path += penDown ? ` L ${x.toFixed(2)} ${y.toFixed(2)}` : ` M ${x.toFixed(2)} ${y.toFixed(2)}`;
+    penDown = true;
+  }
+  return path;
 }
 
-export function CpuUsageChart({ values, scheme }: CpuUsageChartProps) {
-  const hostRef = useRef<HTMLDivElement>(null);
-  const plotRef = useRef<uPlot | null>(null);
-  const valuesRef = useRef(values);
-  valuesRef.current = values;
+function buildArea(path: string, values: (number | null)[], plotWidth: number, plotHeight: number) {
+  const step = plotWidth / (WINDOW - 1);
+  const toY = (value: number) => PLOT_TOP + plotHeight * (1 - value / 100);
+  let firstX: number | null = null;
+  let lastX: number | null = null;
 
-  const buildOptions = useCallback((width: number): uPlot.Options => {
-    const primary = cssVar("--md-sys-color-primary", "#4F5B93");
-    const grid = cssVar(
-      "--md-sys-color-outline-variant",
-      scheme === "dark" ? "#938f99" : "#cac4d0",
-    );
-    const axis = cssVar(
-      "--md-sys-color-on-surface-variant",
-      scheme === "dark" ? "#e6e1e5" : "#49454f",
-    );
-
-    return {
-      width,
-      height: 280,
-      pxAlign: true,
-      cursor: {
-        show: true,
-        x: false,
-        y: false,
-        points: { show: true, size: 7, width: 1 },
-      },
-      legend: { show: false },
-      scales: {
-        x: { time: false, range: [0, WINDOW - 1] },
-        y: { range: [0, 100] },
-      },
-      axes: [
-        { show: false },
-        {
-          stroke: axis,
-          grid: { stroke: grid, width: 1, dash: [4, 4] },
-          ticks: { stroke: axis },
-          values: (_u, ticks) => ticks.map((t) => `${t}%`),
-          size: 46,
-          gap: 6,
-          font: '12px "Google Sans", system-ui, sans-serif',
-        },
-      ],
-      series: [
-        {},
-        {
-          label: "CPU",
-          stroke: primary,
-          width: 2,
-          fill: `${primary}40`,
-          points: { show: false },
-          spanGaps: false,
-        },
-      ],
-    };
-  }, [scheme]);
-
-  useEffect(() => {
-    const host = hostRef.current;
-    if (!host) {
-      return;
+  for (let i = 0; i < WINDOW; i += 1) {
+    const sample = values[i];
+    if (sample == null) {
+      continue;
     }
+    const x = PLOT_LEFT + i * step;
+    if (firstX == null) {
+      firstX = x;
+    }
+    lastX = x;
+  }
 
-    const width = host.clientWidth || 480;
-    const chart = new uPlot(buildOptions(width), seriesData(valuesRef.current), host);
-    plotRef.current = chart;
+  if (firstX == null || lastX == null || !path) {
+    return "";
+  }
 
-    const resize = () => {
-      if (!host.clientWidth) {
-        return;
-      }
-      chart.setSize({ width: host.clientWidth, height: 280 });
-    };
+  const baseline = PLOT_TOP + plotHeight;
+  return `${path} L ${lastX.toFixed(2)} ${baseline.toFixed(2)} L ${firstX.toFixed(2)} ${baseline.toFixed(2)} Z`;
+}
 
-    const observer = new ResizeObserver(resize);
-    observer.observe(host);
-
-    return () => {
-      observer.disconnect();
-      chart.destroy();
-      plotRef.current = null;
-    };
-  }, [buildOptions]);
-
-  useEffect(() => {
-    plotRef.current?.setData(seriesData(values));
+export function CpuUsageChart({ values }: CpuUsageChartProps) {
+  const clipId = useId().replace(/:/g, "");
+  const safeValues = useMemo(() => {
+    if (values.length >= WINDOW) {
+      return values.slice(0, WINDOW);
+    }
+    const padded = [...values];
+    while (padded.length < WINDOW) {
+      padded.push(null);
+    }
+    return padded;
   }, [values]);
 
-  return <div ref={hostRef} className={styles.host} role="img" aria-label="CPU usage, last 60 seconds" />;
+  const viewWidth = 800;
+  const plotWidth = viewWidth - PLOT_LEFT - PLOT_RIGHT;
+  const plotHeight = HEIGHT - PLOT_TOP - PLOT_BOTTOM;
+  const linePath = useMemo(
+    () => buildPath(safeValues, plotWidth, plotHeight),
+    [safeValues, plotWidth, plotHeight],
+  );
+  const areaPath = useMemo(
+    () => buildArea(linePath, safeValues, plotWidth, plotHeight),
+    [linePath, safeValues, plotWidth, plotHeight],
+  );
+
+  const yTicks = [0, 25, 50, 75, 100];
+
+  return (
+    <svg
+      className={styles.svg}
+      viewBox={`0 0 ${viewWidth} ${HEIGHT}`}
+      role="img"
+      aria-label="CPU usage, last 60 seconds"
+      preserveAspectRatio="none"
+    >
+      <defs>
+        <linearGradient id={`cpuArea-${clipId}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="var(--md-sys-color-primary)" stopOpacity={0.35} />
+          <stop offset="100%" stopColor="var(--md-sys-color-primary)" stopOpacity={0} />
+        </linearGradient>
+      </defs>
+
+      {yTicks.map((tick) => {
+        const y = PLOT_TOP + plotHeight * (1 - tick / 100);
+        return (
+          <g key={tick}>
+            <line
+              x1={PLOT_LEFT}
+              x2={viewWidth - PLOT_RIGHT}
+              y1={y}
+              y2={y}
+              className={styles.gridLine}
+            />
+            <text x={PLOT_LEFT - 6} y={y + 4} textAnchor="end" className={styles.yLabel}>
+              {tick}%
+            </text>
+          </g>
+        );
+      })}
+
+      {areaPath ? <path d={areaPath} fill={`url(#cpuArea-${clipId})`} /> : null}
+      {linePath ? <path d={linePath} className={styles.line} fill="none" /> : null}
+    </svg>
+  );
 }
