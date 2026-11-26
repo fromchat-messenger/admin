@@ -10,17 +10,13 @@
       /* FromChat M3 (seed #4F5B93) — matches admin ThemeProvider / Android tonal palette */
       :root {
         --fc-surface: #fef7ff;
-        --fc-on-surface: #1d1b20;
         --fc-primary: #4f5b93;
-        --fc-primary-track: rgba(79, 91, 147, 0.16);
       }
 
       @media (prefers-color-scheme: dark) {
         :root {
           --fc-surface: #141218;
-          --fc-on-surface: #e6e1e5;
           --fc-primary: #b8c1ff;
-          --fc-primary-track: rgba(184, 193, 255, 0.2);
         }
       }
 
@@ -38,7 +34,7 @@
         place-items: center;
         background: var(--fc-surface);
         opacity: 1;
-        transition: opacity 0.45s cubic-bezier(0.2, 0, 0, 1);
+        transition: opacity 0.2s cubic-bezier(0.2, 0, 0, 1);
       }
 
       #boot-splash.boot-splash--hide {
@@ -46,44 +42,40 @@
         pointer-events: none;
       }
 
+      /* M3 circular indeterminate: active indicator only (no track), 48dp / 4dp → r=20, stroke 4 */
       .material-loader {
         display: block;
         width: 6rem;
         height: 6rem;
-        animation: material-loader-spin 1.2s linear infinite;
+        animation: material-loader-rotate 1.333s linear infinite;
       }
 
-      .material-loader__track {
-        stroke: var(--fc-primary-track);
-      }
-
-      .material-loader__arc {
+      .material-loader__active {
         stroke: var(--fc-primary);
-        stroke-dasharray: 80 160;
+        stroke-dasharray: 80 125.6;
         stroke-dashoffset: 0;
         transform-origin: center;
-        animation: material-loader-dash 1.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        animation: material-loader-arc 1.333s cubic-bezier(0.4, 0, 0.2, 1) infinite;
       }
 
-      /* MD3 indeterminate circular: sweep + rotate */
-      @keyframes material-loader-spin {
+      @keyframes material-loader-rotate {
         to {
           transform: rotate(360deg);
         }
       }
 
-      @keyframes material-loader-dash {
+      @keyframes material-loader-arc {
         0% {
-          stroke-dasharray: 1 160;
+          stroke-dasharray: 0.1 125.6;
           stroke-dashoffset: 0;
         }
         50% {
-          stroke-dasharray: 100 160;
-          stroke-dashoffset: -20;
+          stroke-dasharray: 62.8 125.6;
+          stroke-dashoffset: -15.7;
         }
         100% {
-          stroke-dasharray: 1 160;
-          stroke-dashoffset: -125;
+          stroke-dasharray: 0.1 125.6;
+          stroke-dashoffset: -125.6;
         }
       }
     </style>
@@ -107,9 +99,8 @@
       aria-label="Loading FromChat Admin"
     >
       <svg class="material-loader" viewBox="0 0 48 48" aria-hidden="true">
-        <circle class="material-loader__track" cx="24" cy="24" r="20" fill="none" stroke-width="4" />
         <circle
-          class="material-loader__arc"
+          class="material-loader__active"
           cx="24"
           cy="24"
           r="20"

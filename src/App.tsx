@@ -1,7 +1,5 @@
-import { useEffect } from "react";
 import "m3-expressive-react/styles.css";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-import { dismissBootSplash } from "@/bootSplash";
 import { AdminThemeProvider } from "@/theme/AdminTheme";
 import { AuthProvider, useAuth } from "@/auth/AuthContext";
 import { AdminLayout } from "@/layouts/AdminLayout";
@@ -24,13 +22,6 @@ function RequireAdmin({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  useEffect(() => {
-    const frame = requestAnimationFrame(() => {
-      requestAnimationFrame(() => dismissBootSplash());
-    });
-    return () => cancelAnimationFrame(frame);
-  }, []);
-
   return (
     <AdminThemeProvider>
       <AuthProvider>

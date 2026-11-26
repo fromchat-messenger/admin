@@ -11,14 +11,13 @@ export function MaterialLoaderRing({ className, size = "6rem" }: MaterialLoaderR
       viewBox="0 0 48 48"
       aria-hidden
     >
-      <circle className="material-loader__track" cx="24" cy="24" r="20" fill="none" strokeWidth="4" />
       <circle
-        className="material-loader__arc"
+        className="material-loader__active"
         cx="24"
         cy="24"
         r="20"
         fill="none"
-        strokeWidth="4"
+        strokeWidth={4}
         strokeLinecap="round"
       />
     </svg>

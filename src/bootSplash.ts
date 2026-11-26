@@ -15,5 +15,5 @@ export function dismissBootSplash() {
   };
 
   splash.addEventListener("transitionend", remove, { once: true });
-  window.setTimeout(remove, 650);
+  window.setTimeout(remove, 280);
 }
