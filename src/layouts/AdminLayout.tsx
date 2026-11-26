@@ -1,8 +1,8 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import IconButton from "m3-expressive-react/IconButton";
-import { MaterialLoaderRing } from "@/components/MaterialLoaderRing";
+import LoadingIndicator from "m3-expressive-react/LoadingIndicator";
 import { useAuth } from "@/auth/AuthContext";
 import { useAdminTheme } from "@/theme/AdminTheme";
 import { pageTransition } from "@/motion/spring";
@@ -72,12 +72,32 @@ function AdminLayoutShell() {
   const location = useLocation();
   const fromLogin = Boolean((location.state as { fromLogin?: boolean } | null)?.fromLogin);
   const clearedLoginStateRef = useRef(false);
+  const entryPathRef = useRef(location.pathname);
+  const sawPaneBusyRef = useRef(false);
+  const [paneOverlayAllowed, setPaneOverlayAllowed] = useState(true);
   const pageTitle = ROUTE_TITLES[location.pathname] ?? "Admin";
+  const showPaneOverlay = busy && paneOverlayAllowed;
   const mobileNav = NAV_GROUPS.flatMap((group) => group.items);
 
   useEffect(() => {
     clearedLoginStateRef.current = false;
   }, [fromLogin]);
+
+  useEffect(() => {
+    if (location.pathname !== entryPathRef.current) {
+      setPaneOverlayAllowed(false);
+    }
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (busy) {
+      sawPaneBusyRef.current = true;
+      return;
+    }
+    if (sawPaneBusyRef.current) {
+      setPaneOverlayAllowed(false);
+    }
+  }, [busy]);
 
   function signOut() {
     logout();
@@ -136,25 +156,6 @@ function AdminLayoutShell() {
         </div>
       </aside>
 
-      <AnimatePresence initial={false}>
-        {busy ? (
-          <motion.div
-            key="main-pane-busy"
-            className={styles.shellOverlay}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ ...pageTransition, mass: 0.5 }}
-            role="status"
-            aria-live="polite"
-            aria-busy
-            aria-label={label}
-          >
-            <MaterialLoaderRing className="material-loader" />
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
-
       <div className={styles.main}>
         <header className={styles.topbar}>
           <div className={styles.topbarStart}>
@@ -173,6 +174,25 @@ function AdminLayoutShell() {
         </header>
 
         <div className={styles.contentStage}>
+          <AnimatePresence initial={false}>
+            {showPaneOverlay ? (
+              <motion.div
+                key="main-pane-busy"
+                className={styles.mainPaneOverlay}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ ...pageTransition, mass: 0.5 }}
+                role="status"
+                aria-live="polite"
+                aria-busy
+                aria-label={label}
+              >
+                <LoadingIndicator variant="uncontained" aria-label={label} />
+              </motion.div>
+            ) : null}
+          </AnimatePresence>
+
           <AnimatePresence mode="popLayout" initial={false}>
             <motion.main
               className={styles.content}

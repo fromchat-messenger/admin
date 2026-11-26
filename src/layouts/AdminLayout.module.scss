@@ -114,10 +114,10 @@
   background: var(--md-sys-color-surface-container-low);
 }
 
-.shellOverlay {
-  position: fixed;
+.mainPaneOverlay {
+  position: absolute;
   inset: 0;
-  z-index: 100;
+  z-index: 20;
   display: grid;
   place-items: center;
   background: var(--md-sys-color-surface);
