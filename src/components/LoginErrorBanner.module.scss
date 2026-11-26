@@ -2,7 +2,6 @@
   display: flex;
   flex-direction: column;
   gap: 0;
-  padding-bottom: 0.35rem;
 }
 
 .shell {
@@ -13,6 +12,7 @@
 
 .content {
   transform-origin: top center;
+  padding-bottom: 0.35rem;
 }
 
 .body {
