@@ -1,3 +1,8 @@
+.root {
+  position: relative;
+  width: 100%;
+}
+
 .trigger {
   display: flex;
   align-items: center;
@@ -13,6 +18,10 @@
 
   &:hover {
     background: color-mix(in srgb, var(--md-sys-color-on-surface) 6%, transparent);
+  }
+
+  &[aria-expanded="true"] {
+    background: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, transparent);
   }
 }
 
@@ -37,13 +46,69 @@
   color: var(--md-sys-color-on-surface-variant);
 }
 
-.more {
-  flex-shrink: 0;
-  color: var(--md-sys-color-on-surface-variant);
-}
-
 .triggerCompact {
   justify-content: center;
   width: auto;
   padding: 0.35rem;
+}
+
+.panel {
+  position: absolute;
+  z-index: 30;
+  inset-inline-end: 0;
+  bottom: calc(100% + 0.35rem);
+  min-width: 13.5rem;
+  padding: 0.35rem;
+  border-radius: 1rem;
+  border: 1px solid color-mix(in srgb, var(--md-sys-color-outline-variant) 55%, transparent);
+  background: var(--md-sys-color-surface-container-high);
+  box-shadow: var(--admin-card-shadow);
+  animation: profileMenuIn 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+
+@keyframes profileMenuIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.menuRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  border: 0;
+  border-radius: 0.75rem;
+  background: transparent;
+  color: var(--md-sys-color-on-surface);
+  font: inherit;
+  font-size: 0.9rem;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover {
+    background: color-mix(in srgb, var(--md-sys-color-on-surface) 7%, transparent);
+  }
+}
+
+.menuIcon {
+  font-size: 1.25rem;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.menuLabel {
+  flex: 1;
+}
+
+.divider {
+  height: 1px;
+  margin: 0.2rem 0.5rem;
+  background: color-mix(in srgb, var(--md-sys-color-outline-variant) 50%, transparent);
 }

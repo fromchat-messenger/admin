@@ -26,13 +26,30 @@
   }
 }
 
+.rail[data-variant="expanded"] :global([class*="_items_"] > [data-rail-entry]) {
+  --_pill-left: 12px;
+  --_pill-w: calc(100% - 24px);
+  --_icon-left: 28px;
+}
+
+.rail[data-variant="expanded"] :global([class*="_items_"] > [data-rail-entry] [class*="_shape_"]::before) {
+  transform-origin: 50% 50%;
+}
+
+.rail[data-variant="expanded"] :global([class*="_items_"] > [data-rail-entry] [class*="_focus_"]) {
+  --_pill-left: 12px;
+  --_pill-w: calc(100% - 24px);
+}
+
 .brand {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 0.35rem;
   width: 100%;
-  padding-block-end: 0.35rem;
+  padding-block: 0.15rem 0.45rem;
+  text-align: center;
 }
 
 .brandLogo {
@@ -45,30 +62,31 @@
 }
 
 .brandText {
-  display: none;
+  display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
   align-items: baseline;
-  gap: 0.35rem;
-  white-space: nowrap;
+  justify-content: center;
+  gap: 0.3rem;
   line-height: 1.2;
-  min-width: 0;
+  max-width: 5.5rem;
 }
 
 .brandName {
-  font-weight: 500;
-  font-size: 0.95rem;
-  letter-spacing: -0.02em;
-  color: var(--md-sys-color-on-surface);
-}
-
-.brandAdmin {
-  font-size: 0.95rem;
   font-weight: 600;
-  letter-spacing: -0.01em;
+  font-size: 0.7rem;
+  letter-spacing: -0.02em;
   background: linear-gradient(45deg, #9333ea, #6366f1, #3b82f6, #a855f7, #d946ef, #ec4899, #c084fc, #7e22ce);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+}
+
+.brandAdmin {
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--md-sys-color-on-surface);
 }
 
 .rail[data-variant="expanded"] .brand {
@@ -76,11 +94,18 @@
   align-items: center;
   gap: 0.65rem;
   padding-inline: 0.35rem 0.75rem;
-  padding-block: 0.15rem 0.55rem;
+  text-align: start;
 }
 
 .rail[data-variant="expanded"] .brandText {
-  display: flex;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  max-width: none;
+}
+
+.rail[data-variant="expanded"] .brandName,
+.rail[data-variant="expanded"] .brandAdmin {
+  font-size: 0.95rem;
 }
 
 .main {

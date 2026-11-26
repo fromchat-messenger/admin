@@ -147,16 +147,6 @@ function AdminLayoutShell() {
         onChange={(_, value) => navigate(value)}
         header={
           <>
-            <NavigationRailAction
-              icon={
-                <span className="material-symbols-rounded">
-                  {railExpanded ? "chevron_left" : "menu"}
-                </span>
-              }
-              label={railExpanded ? "Collapse" : "Menu"}
-              aria-label={railExpanded ? "Collapse navigation rail" : "Expand navigation rail"}
-              onClick={() => setRailVariant(railExpanded ? "collapsed" : "expanded")}
-            />
             <div className={styles.brand}>
               <img
                 className={styles.brandLogo}
@@ -170,6 +160,16 @@ function AdminLayoutShell() {
                 <span className={styles.brandAdmin}>Admin</span>
               </div>
             </div>
+            <NavigationRailAction
+              icon={
+                <span className="material-symbols-rounded">
+                  {railExpanded ? "chevron_left" : "menu"}
+                </span>
+              }
+              label={railExpanded ? "Collapse" : "Menu"}
+              aria-label={railExpanded ? "Collapse navigation rail" : "Expand navigation rail"}
+              onClick={() => setRailVariant(railExpanded ? "collapsed" : "expanded")}
+            />
           </>
         }
         footer={
