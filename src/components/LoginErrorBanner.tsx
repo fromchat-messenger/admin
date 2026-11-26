@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { type ReactNode, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { pageTransition } from "@/motion/spring";
 import styles from "./LoginErrorBanner.module.scss";
 
@@ -27,9 +27,10 @@ const contentExitSpring = {
 
 type LoginErrorBannerProps = {
   message: string | null;
+  children: ReactNode;
 };
 
-export function LoginErrorBanner({ message }: LoginErrorBannerProps) {
+export function LoginErrorBanner({ message, children }: LoginErrorBannerProps) {
   const scaleRef = useRef<HTMLDivElement>(null);
   const [copy, setCopy] = useState<string | null>(null);
   const [measuredHeight, setMeasuredHeight] = useState(0);
@@ -63,36 +64,39 @@ export function LoginErrorBanner({ message }: LoginErrorBannerProps) {
   const shellHeight = open ? measuredHeight : 0;
 
   return (
-    <motion.div
-      className={styles.shell}
-      initial={false}
-      animate={{ height: shellHeight }}
-      transition={open ? revealSpring : shellExitSpring}
-      onAnimationComplete={() => {
-        if (!open) {
-          setCopy(null);
-          setMeasuredHeight(0);
-        }
-      }}
-    >
-      {label ? (
-        <motion.div
-          ref={scaleRef}
-          className={styles.scaleWrap}
-          initial={false}
-          animate={
-            open
-              ? { opacity: 1, scale: 1 }
-              : { opacity: 0, scale: 0.94 }
+    <div className={styles.scaleWrap}>
+      <motion.div
+        className={styles.shell}
+        initial={false}
+        animate={{ height: shellHeight }}
+        transition={open ? revealSpring : shellExitSpring}
+        onAnimationComplete={() => {
+          if (!open) {
+            setCopy(null);
+            setMeasuredHeight(0);
           }
-          transition={open ? revealSpring : contentExitSpring}
-          style={{ transformOrigin: "top center" }}
-        >
-          <p className={styles.body} role="alert">
-            {label}
-          </p>
-        </motion.div>
-      ) : null}
-    </motion.div>
+        }}
+      >
+        {label ? (
+          <motion.div
+            ref={scaleRef}
+            className={styles.content}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={
+              open
+                ? { opacity: 1, scale: 1 }
+                : { opacity: 0, scale: 0.94 }
+            }
+            transition={open ? revealSpring : contentExitSpring}
+            style={{ transformOrigin: "top center" }}
+          >
+            <p className={styles.body} role="alert">
+              {label}
+            </p>
+          </motion.div>
+        ) : null}
+      </motion.div>
+      {children}
+    </div>
   );
 }

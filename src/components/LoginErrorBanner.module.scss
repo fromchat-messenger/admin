@@ -1,11 +1,17 @@
+.scaleWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding-bottom: 0.35rem;
+}
+
 .shell {
   overflow: hidden;
   min-height: 0;
   contain: layout paint;
 }
 
-.scaleWrap {
-  padding-bottom: 0.35rem;
+.content {
   transform-origin: top center;
 }
 
@@ -21,7 +27,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .shell,
-  .scaleWrap {
+  .content {
     transition: none !important;
   }
 }
