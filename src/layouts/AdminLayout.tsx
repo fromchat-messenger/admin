@@ -9,6 +9,7 @@ import { AdminProfileMenu } from "@/components/AdminProfileMenu";
 import { useAuth } from "@/auth/AuthContext";
 import { useAdminTheme } from "@/theme/AdminTheme";
 import { pageTransition } from "@/motion/spring";
+import { hasRouteDataReady, routeOverlayKey } from "@/cache/pageDataCache";
 import { MainPaneBusyProvider, useMainPaneBusyContext } from "@/layout/MainPaneBusy";
 import styles from "./AdminLayout.module.scss";
 
@@ -58,7 +59,8 @@ function AdminLayoutShell() {
   const [paneOverlayFading, setPaneOverlayFading] = useState(false);
   const [paneContentRevealed, setPaneContentRevealed] = useState(false);
   const showPaneOverlay = paneOverlayVisible || paneOverlayFading;
-  const overlayKey = location.pathname.replace(/\/accounts\/\d+.*/, "/accounts");
+  const showRefreshIndicator = busy && !showPaneOverlay;
+  const overlayKey = routeOverlayKey(location.pathname);
   const railValue = navValue(location.pathname);
   const mobileNav = NAV_ITEMS;
   const [railVariant, setRailVariant] = useState<NavigationRailVariant>("collapsed");
@@ -70,6 +72,14 @@ function AdminLayoutShell() {
 
   useLayoutEffect(() => {
     sawPaneBusyRef.current = false;
+
+    if (hasRouteDataReady(overlayKey)) {
+      setPaneOverlayVisible(false);
+      setPaneOverlayFading(false);
+      setPaneContentRevealed(true);
+      return;
+    }
+
     setPaneOverlayVisible(true);
     setPaneOverlayFading(false);
     setPaneContentRevealed(false);
@@ -213,6 +223,25 @@ function AdminLayoutShell() {
               <LoadingIndicator variant="uncontained" aria-label={label} />
             </div>
           ) : null}
+
+          <AnimatePresence initial={false}>
+            {showRefreshIndicator ? (
+              <motion.div
+                key="pane-refresh"
+                className={styles.refreshIndicator}
+                role="status"
+                aria-live="polite"
+                aria-busy="true"
+                aria-label={label}
+                initial={{ y: -20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: -20, opacity: 0 }}
+                transition={pageShift}
+              >
+                <LoadingIndicator variant="contained" aria-label={label} />
+              </motion.div>
+            ) : null}
+          </AnimatePresence>
 
           <AnimatePresence mode="popLayout" initial={false}>
             <motion.main

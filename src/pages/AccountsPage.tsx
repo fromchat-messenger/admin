@@ -1,7 +1,9 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import SearchBar from "m3-expressive-react/SearchBar";
 import { useAuth } from "@/auth/AuthContext";
+import { getPageCache, setPageCache } from "@/cache/pageDataCache";
+import { useMarkRouteCachedWhenReady } from "@/cache/useMarkRouteCached";
 import { useMainPaneBusy } from "@/layout/MainPaneBusy";
 import { apiFetch } from "@/api/client";
 import { PageHeader } from "@/components/PageHeader";
@@ -61,20 +63,41 @@ function userFlags(user: UserRow) {
   return flags;
 }
 
+type AccountsListCache = { rows: UserRow[]; total: number };
+
 export function AccountsPage() {
   const { session } = useAuth();
   const navigate = useNavigate();
-  const [rows, setRows] = useState<UserRow[]>([]);
-  const [total, setTotal] = useState(0);
   const [offset, setOffset] = useState(0);
   const [q, setQ] = useState("");
   const [query, setQuery] = useState("");
   const [segment, setSegment] = useState<Segment>("all");
-  const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<string | null>(null);
   const limit = 20;
 
-  useMainPaneBusy(loading && rows.length === 0, "Loading accounts…");
+  const cacheKey = useMemo(
+    () => `accounts:list:${segment}:${offset}:${query}`,
+    [segment, offset, query],
+  );
+  const initialCache = getPageCache<AccountsListCache>(cacheKey);
+  const [rows, setRows] = useState<UserRow[]>(initialCache?.rows ?? []);
+  const [total, setTotal] = useState(initialCache?.total ?? 0);
+  const [loading, setLoading] = useState(!initialCache);
+  const [loadedOnce, setLoadedOnce] = useState(Boolean(initialCache));
+
+  useMainPaneBusy(loading, "Loading accounts…");
+  useMarkRouteCachedWhenReady(loadedOnce);
+
+  useEffect(() => {
+    const cached = getPageCache<AccountsListCache>(cacheKey);
+    if (cached) {
+      setRows(cached.rows);
+      setTotal(cached.total);
+    } else {
+      setRows([]);
+      setTotal(0);
+    }
+  }, [cacheKey]);
 
   const load = useCallback(async () => {
     if (!session) {
@@ -96,12 +119,14 @@ export function AccountsPage() {
       );
       setRows(data.users);
       setTotal(data.total);
+      setPageCache(cacheKey, { rows: data.users, total: data.total });
+      setLoadedOnce(true);
     } catch (err) {
       setMessage(err instanceof Error ? err.message : "Failed to load users");
     } finally {
       setLoading(false);
     }
-  }, [session, offset, query, segment]);
+  }, [cacheKey, session, offset, query, segment]);
 
   useEffect(() => {
     void load();

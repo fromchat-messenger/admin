@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import Button from "m3-expressive-react/Button";
 import { useAuth } from "@/auth/AuthContext";
+import { getPageCache, setPageCache } from "@/cache/pageDataCache";
+import { useMarkRouteCachedWhenReady } from "@/cache/useMarkRouteCached";
 import { useMainPaneBusy } from "@/layout/MainPaneBusy";
 import { apiFetch } from "@/api/client";
 import { PageHeader } from "@/components/PageHeader";
@@ -8,15 +10,32 @@ import page from "@/styles/admin-page.module.scss";
 
 type FileRow = { stored_name: string; kind: string; size_bytes: number; modified_at: string };
 
+type FilesCache = { files: FileRow[]; cursor: string | null };
+
 export function FilesPage() {
   const { session } = useAuth();
-  const [files, setFiles] = useState<FileRow[]>([]);
-  const [cursor, setCursor] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
   const [prefix, setPrefix] = useState("");
+  const cacheKey = `files:${prefix}`;
+  const initialCache = getPageCache<FilesCache>(cacheKey);
+  const [files, setFiles] = useState<FileRow[]>(initialCache?.files ?? []);
+  const [cursor, setCursor] = useState<string | null>(initialCache?.cursor ?? null);
+  const [loading, setLoading] = useState(!initialCache);
+  const [loadedOnce, setLoadedOnce] = useState(Boolean(initialCache));
   const [error, setError] = useState<string | null>(null);
 
-  useMainPaneBusy(loading && files.length === 0, "Loading files…");
+  useMainPaneBusy(loading, "Loading files…");
+  useMarkRouteCachedWhenReady(loadedOnce);
+
+  useEffect(() => {
+    const cached = getPageCache<FilesCache>(cacheKey);
+    if (cached) {
+      setFiles(cached.files);
+      setCursor(cached.cursor);
+    } else {
+      setFiles([]);
+      setCursor(null);
+    }
+  }, [cacheKey]);
 
   async function load(next?: string | null) {
     if (!session) {
@@ -33,7 +52,14 @@ export function FilesPage() {
         `/admin/files?${params}`,
         session.token,
       );
-      setFiles((prev) => (next ? [...prev, ...data.files] : data.files));
+      setFiles((prev) => {
+        const nextFiles = next ? [...prev, ...data.files] : data.files;
+        if (!next) {
+          setPageCache(cacheKey, { files: nextFiles, cursor: data.next_cursor });
+          setLoadedOnce(true);
+        }
+        return nextFiles;
+      });
       setCursor(data.next_cursor);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Failed to load files";

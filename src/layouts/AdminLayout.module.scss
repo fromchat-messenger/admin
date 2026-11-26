@@ -169,6 +169,17 @@
   border-start-start-radius: inherit;
 }
 
+.refreshIndicator {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline: 0;
+  z-index: 6;
+  display: flex;
+  justify-content: center;
+  padding: 0.65rem 1rem 0;
+  pointer-events: none;
+}
+
 .content {
   width: 100%;
   max-width: 1400px;

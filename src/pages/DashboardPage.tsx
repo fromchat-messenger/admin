@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/auth/AuthContext";
+import { getPageCache, setPageCache } from "@/cache/pageDataCache";
+import { useMarkRouteCachedWhenReady } from "@/cache/useMarkRouteCached";
 import { useMainPaneBusy } from "@/layout/MainPaneBusy";
 import { apiFetch } from "@/api/client";
 import { apiWebSocketUrl } from "@/config";
@@ -56,14 +58,26 @@ function pushCpuSample(prev: (number | null)[], sample: number): (number | null)
   return [...prev.slice(1), sample];
 }
 
+const DASHBOARD_CACHE_KEY = "dashboard";
+
+type DashboardCache = {
+  metricsLive: boolean;
+  host: { cpu: number; mem: number; disk: number };
+  cpuSlots: (number | null)[];
+  totals: Record<string, number>;
+};
+
 export function DashboardPage() {
   const { session } = useAuth();
-  const [metricsLive, setMetricsLive] = useState(false);
-  const [host, setHost] = useState({ cpu: 0, mem: 0, disk: 0 });
-  const [cpuSlots, setCpuSlots] = useState<(number | null)[]>(emptyCpuWindow);
-  const [totals, setTotals] = useState<Record<string, number>>({});
+  const cached = getPageCache<DashboardCache>(DASHBOARD_CACHE_KEY);
+  const [metricsLive, setMetricsLive] = useState(cached?.metricsLive ?? false);
+  const [host, setHost] = useState(cached?.host ?? { cpu: 0, mem: 0, disk: 0 });
+  const [cpuSlots, setCpuSlots] = useState<(number | null)[]>(cached?.cpuSlots ?? emptyCpuWindow());
+  const [totals, setTotals] = useState<Record<string, number>>(cached?.totals ?? {});
+  const [snapshotReady, setSnapshotReady] = useState(Boolean(cached));
 
   useMainPaneBusy(!metricsLive, "Connecting to live metrics…");
+  useMarkRouteCachedWhenReady(snapshotReady);
 
   const displayName = useMemo(() => {
     const name = session?.username ?? "admin";
@@ -84,6 +98,7 @@ export function DashboardPage() {
       .then((data) => {
         if (!cancelled) {
           setTotals(data);
+          setSnapshotReady(true);
         }
       });
     return () => {
@@ -116,6 +131,15 @@ export function DashboardPage() {
       setTotals(data.totals);
     }
   }, []);
+
+  useEffect(() => {
+    const hasTotals = Object.keys(totals).length > 0;
+    if (!metricsLive && !hasTotals) {
+      return;
+    }
+    setPageCache(DASHBOARD_CACHE_KEY, { metricsLive, host, cpuSlots, totals });
+    setSnapshotReady(true);
+  }, [metricsLive, host, cpuSlots, totals]);
 
   const connected = useReconnectingWebSocket({
     url: metricsWsUrl,

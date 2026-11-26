@@ -3,6 +3,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import Button from "m3-expressive-react/Button";
 import TextField from "m3-expressive-react/TextField";
 import IconButton from "m3-expressive-react/IconButton";
+import { getPageCache, setPageCache } from "@/cache/pageDataCache";
+import { useMarkRouteCachedWhenReady } from "@/cache/useMarkRouteCached";
+import { useMainPaneBusy } from "@/layout/MainPaneBusy";
 import { useAuth } from "@/auth/AuthContext";
 import { apiFetch, ApiError } from "@/api/client";
 import { PageHeader } from "@/components/PageHeader";
@@ -51,14 +54,26 @@ export function AccountUserPage() {
   const navigate = useNavigate();
   const { session } = useAuth();
   const numericId = Number(userId);
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [events, setEvents] = useState<ModerationEvent[]>([]);
-  const [displayName, setDisplayName] = useState("");
-  const [bio, setBio] = useState("");
+  type UserCache = {
+    profile: UserProfile;
+    events: ModerationEvent[];
+    displayName: string;
+    bio: string;
+  };
+  const cacheKey = Number.isFinite(numericId) ? `accounts:user:${numericId}` : "";
+  const cached = cacheKey ? getPageCache<UserCache>(cacheKey) : undefined;
+  const [profile, setProfile] = useState<UserProfile | null>(cached?.profile ?? null);
+  const [events, setEvents] = useState<ModerationEvent[]>(cached?.events ?? []);
+  const [displayName, setDisplayName] = useState(cached?.displayName ?? "");
+  const [bio, setBio] = useState(cached?.bio ?? "");
   const [filterSample, setFilterSample] = useState("");
   const [filterResult, setFilterResult] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!cached);
+  const [loadedOnce, setLoadedOnce] = useState(Boolean(cached));
+
+  useMainPaneBusy(loading, "Loading user…");
+  useMarkRouteCachedWhenReady(loadedOnce);
 
   const load = useCallback(async () => {
     if (!session || !Number.isFinite(numericId)) {
@@ -74,15 +89,26 @@ export function AccountUserPage() {
         ),
       ]);
       setProfile(user);
-      setDisplayName(user.display_name);
-      setBio(user.bio ?? "");
+      const nextDisplay = user.display_name;
+      const nextBio = user.bio ?? "";
+      setDisplayName(nextDisplay);
+      setBio(nextBio);
       setEvents(moderation.events);
+      if (cacheKey) {
+        setPageCache(cacheKey, {
+          profile: user,
+          events: moderation.events,
+          displayName: nextDisplay,
+          bio: nextBio,
+        });
+      }
+      setLoadedOnce(true);
     } catch (err) {
       setMessage(err instanceof Error ? err.message : "Failed to load user");
     } finally {
       setLoading(false);
     }
-  }, [session, numericId]);
+  }, [cacheKey, session, numericId]);
 
   useEffect(() => {
     void load();
@@ -154,10 +180,6 @@ export function AccountUserPage() {
       body: JSON.stringify({ text: filterSample }),
     });
     setFilterResult(data.allowed ? "Allowed" : data.reason_detail || "Blocked");
-  }
-
-  if (loading && !profile) {
-    return <p className={page.muted}>Loading…</p>;
   }
 
   if (!profile) {

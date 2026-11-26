@@ -2,33 +2,48 @@ import { useEffect, useState } from "react";
 import Button from "m3-expressive-react/Button";
 import TextField from "m3-expressive-react/TextField";
 import { useAuth } from "@/auth/AuthContext";
+import { getPageCache, setPageCache } from "@/cache/pageDataCache";
+import { useMarkRouteCachedWhenReady } from "@/cache/useMarkRouteCached";
 import { useMainPaneBusy } from "@/layout/MainPaneBusy";
 import { apiFetch } from "@/api/client";
 import { PageHeader } from "@/components/PageHeader";
 import page from "@/styles/admin-page.module.scss";
 
+const MODERATION_CACHE_KEY = "moderation";
+
+type ModerationCache = {
+  words: string[];
+  events: { id: number; created_at: string; source: string; reason_detail: string; text_preview: string }[];
+  filterOff: boolean;
+};
+
 export function ModerationPage() {
   const { session } = useAuth();
-  const [words, setWords] = useState<string[]>([]);
+  const cached = getPageCache<ModerationCache>(MODERATION_CACHE_KEY);
+  const [words, setWords] = useState<string[]>(cached?.words ?? []);
   const [newWord, setNewWord] = useState("");
   const [testText, setTestText] = useState("");
   const [testResult, setTestResult] = useState<string | null>(null);
   const [events, setEvents] = useState<
     { id: number; created_at: string; source: string; reason_detail: string; text_preview: string }[]
-  >([]);
-  const [loading, setLoading] = useState(true);
-  const [filterOff, setFilterOff] = useState(false);
+  >(cached?.events ?? []);
+  const [loading, setLoading] = useState(!cached);
+  const [filterOff, setFilterOff] = useState(cached?.filterOff ?? false);
+  const [loadedOnce, setLoadedOnce] = useState(Boolean(cached));
 
   useMainPaneBusy(loading, "Loading moderation data…");
+  useMarkRouteCachedWhenReady(loadedOnce);
 
   async function refresh() {
     if (!session) {
       return;
     }
     setLoading(true);
+    let nextFilterOff = filterOff;
     try {
       const [blocklist, log] = await Promise.all([
         apiFetch<{ words: string[] }>("/moderation/blocklist", session.token).catch(() => {
+          nextFilterOff = true;
           setFilterOff(true);
           return { words: [] as string[] };
         }),
@@ -36,6 +51,12 @@ export function ModerationPage() {
       ]);
       setWords(blocklist.words);
       setEvents(log.events);
+      setPageCache(MODERATION_CACHE_KEY, {
+        words: blocklist.words,
+        events: log.events,
+        filterOff: nextFilterOff,
+      });
+      setLoadedOnce(true);
     } finally {
       setLoading(false);
     }
