@@ -55,7 +55,17 @@ export function AdminThemeProvider({ children }: { children: ReactNode }) {
 
   return (
     <AdminThemeContext.Provider value={ctx}>
-      <ThemeProvider seedColor="#4F5B93" mode={mode} motionScheme="standard" as="div" style={{ minHeight: "100dvh" }}>
+      <ThemeProvider
+        seedColor="#4F5B93"
+        mode={mode}
+        motionScheme="standard"
+        as="div"
+        style={{
+          minHeight: "100dvh",
+          background: "var(--md-sys-color-surface)",
+          color: "var(--md-sys-color-on-surface)",
+        }}
+      >
         {children}
       </ThemeProvider>
     </AdminThemeContext.Provider>

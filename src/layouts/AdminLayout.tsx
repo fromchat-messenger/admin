@@ -1,5 +1,6 @@
+import { useEffect, useRef } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import IconButton from "m3-expressive-react/IconButton";
 import { useAuth } from "@/auth/AuthContext";
 import { useAdminTheme } from "@/theme/AdminTheme";
@@ -43,18 +44,50 @@ const ROUTE_TITLES: Record<string, string> = {
   "/tools": "Tools",
 };
 
+const adminEnter = {
+  ...pageTransition,
+  mass: 0.7,
+};
+
+const pageShift = {
+  ...pageTransition,
+  mass: 0.55,
+};
+
 export function AdminLayout() {
   const { session, logout } = useAuth();
   const { mode, toggleMode } = useAdminTheme();
   const navigate = useNavigate();
   const location = useLocation();
+  const fromLogin = Boolean((location.state as { fromLogin?: boolean } | null)?.fromLogin);
+  const clearedLoginStateRef = useRef(false);
   const pageTitle = ROUTE_TITLES[location.pathname] ?? "Admin";
   const mobileNav = NAV_GROUPS.flatMap((group) => group.items);
 
+  useEffect(() => {
+    clearedLoginStateRef.current = false;
+  }, [fromLogin]);
+
+  function signOut() {
+    logout();
+    navigate("/login", { replace: true });
+  }
+
   return (
-    <div className={styles.shell}>
+    <motion.div
+      className={styles.shell}
+      initial={fromLogin ? { opacity: 0, scale: 0.985, y: 10 } : false}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      transition={adminEnter}
+      onAnimationComplete={() => {
+        if (fromLogin && !clearedLoginStateRef.current) {
+          clearedLoginStateRef.current = true;
+          navigate({ pathname: location.pathname, search: location.search }, { replace: true, state: null });
+        }
+      }}
+    >
       <aside className={styles.sidebar}>
-        <motion.div className={styles.brand} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={pageTransition}>
+        <motion.div className={styles.brand} initial={false} animate={{ opacity: 1 }} transition={pageTransition}>
           <img className={styles.brandLogo} src="/logo-square.png" width={44} height={44} alt="" />
           <div className={styles.brandText}>
             <span className={styles.brandName}>FromChat</span>
@@ -85,7 +118,7 @@ export function AdminLayout() {
               variant="tonal"
               icon={<span className="material-symbols-rounded">logout</span>}
               aria-label="Sign out"
-              onClick={logout}
+              onClick={signOut}
             />
           </motion.div>
         </div>
@@ -96,12 +129,7 @@ export function AdminLayout() {
           <div className={styles.topbarStart}>
             <h2 className={styles.crumb}>{pageTitle}</h2>
           </div>
-          <motion.div
-            className={styles.topbarEnd}
-            initial={{ opacity: 0, y: -6 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ ...pageTransition, delay: 0.05 }}
-          >
+          <div className={styles.topbarEnd}>
             <IconButton
               variant="tonal"
               icon={
@@ -110,18 +138,21 @@ export function AdminLayout() {
               aria-label={mode === "dark" ? "Switch to light theme" : "Switch to dark theme"}
               onClick={toggleMode}
             />
-          </motion.div>
+          </div>
         </header>
 
-        <motion.main
-          className={styles.content}
-          key={location.pathname}
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={pageTransition}
-        >
-          <Outlet />
-        </motion.main>
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.main
+            className={styles.content}
+            key={location.pathname}
+            initial={false}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={pageShift}
+          >
+            <Outlet />
+          </motion.main>
+        </AnimatePresence>
 
         <nav className={styles.bottomNav} aria-label="Primary mobile">
           {mobileNav.map((item) => (
@@ -141,6 +172,6 @@ export function AdminLayout() {
           ))}
         </nav>
       </div>
-    </div>
+    </motion.div>
   );
 }

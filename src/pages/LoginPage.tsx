@@ -1,19 +1,36 @@
-import { FormEvent, useEffect, useState } from "react";
-import { Navigate } from "react-router-dom";
+import { FormEvent, useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import TextField from "m3-expressive-react/TextField";
 import { useAuth } from "@/auth/AuthContext";
 import { LoginErrorBanner } from "@/components/LoginErrorBanner";
 import { LoginSubmitButton } from "@/components/LoginSubmitButton";
+import { pageTransition } from "@/motion/spring";
 import styles from "./LoginPage.module.scss";
 
 const ERROR_VISIBLE_MS = 3000;
 
+const loginReveal = {
+  ...pageTransition,
+  mass: 0.72,
+};
+
+const loginLeave = {
+  ...pageTransition,
+  stiffness: 420,
+  damping: 36,
+  mass: 0.55,
+};
+
 export function LoginPage() {
+  const navigate = useNavigate();
   const { session, login } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [leaving, setLeaving] = useState(false);
+  const freshLoginRef = useRef(false);
 
   useEffect(() => {
     if (!error) {
@@ -23,20 +40,25 @@ export function LoginPage() {
     return () => window.clearTimeout(timeout);
   }, [error]);
 
-  if (session) {
-    return <Navigate to="/dashboard" replace />;
-  }
+  useEffect(() => {
+    if (session && !freshLoginRef.current && !leaving) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [session, leaving, navigate]);
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
-    if (loading) {
+    if (loading || leaving) {
       return;
     }
     setError(null);
     setLoading(true);
     try {
+      freshLoginRef.current = true;
       await login(username.trim(), password);
+      setLeaving(true);
     } catch (err) {
+      freshLoginRef.current = false;
       setError(err instanceof Error ? err.message : "Login failed");
     } finally {
       setLoading(false);
@@ -44,8 +66,27 @@ export function LoginPage() {
   }
 
   return (
-    <div className={styles.page}>
-      <div className={styles.card}>
+    <motion.div
+      className={styles.page}
+      initial={{ opacity: 0, scale: 0.98, y: 10 }}
+      animate={
+        leaving
+          ? { opacity: 0, scale: 0.97, y: -14, filter: "blur(6px)" }
+          : { opacity: 1, scale: 1, y: 0, filter: "blur(0px)" }
+      }
+      transition={leaving ? loginLeave : loginReveal}
+      onAnimationComplete={() => {
+        if (leaving) {
+          navigate("/dashboard", { replace: true, state: { fromLogin: true } });
+        }
+      }}
+    >
+      <motion.div
+        className={styles.card}
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ ...loginReveal, delay: 0.04 }}
+      >
         <header className={styles.intro}>
           <img className={styles.logo} src="/logo-square.png" width={72} height={72} alt="" />
           <h1 className={styles.heading}>FromChat Admin login</h1>
@@ -88,8 +129,8 @@ export function LoginPage() {
             <LoginSubmitButton loading={loading} />
           </LoginErrorBanner>
         </form>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }
 
