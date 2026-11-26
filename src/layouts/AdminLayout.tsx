@@ -144,6 +144,7 @@ function AdminLayoutShell() {
       <NavigationRail
         className={styles.rail}
         variant={railVariant}
+        arrangement="center"
         value={railValue}
         onChange={(_, value) => navigate(value)}
       >
@@ -162,6 +163,7 @@ function AdminLayoutShell() {
         railExpanded={railExpanded}
         onToggleRail={toggleRail}
         username={session?.username ?? "Admin"}
+        userId={session?.userId ?? 1}
         mode={mode}
         onToggleTheme={toggleMode}
         onSignOut={signOut}
@@ -174,6 +176,7 @@ function AdminLayoutShell() {
         </div>
         <AdminProfileMenu
           username={session?.username ?? "Admin"}
+          userId={session?.userId ?? 1}
           mode={mode}
           onToggleTheme={toggleMode}
           onSignOut={signOut}

@@ -22,12 +22,15 @@
 }
 
 .searchDock {
-  max-width: 100%;
+  width: 100%;
+  max-width: 40rem;
+}
 
-  :global([class*="SearchBar"]) {
-    width: 100%;
-    max-width: 40rem;
-  }
+.searchBar {
+  width: 100%;
+  max-width: 40rem;
+  --md-search-bar-width: 100%;
+  --md-search-bar-min-width: min(100%, 22.5rem);
 }
 
 .tableWrap {

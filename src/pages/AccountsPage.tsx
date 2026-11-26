@@ -139,6 +139,7 @@ export function AccountsPage() {
 
       <div className={page.searchDock}>
         <SearchBar
+          className={page.searchBar}
           value={q}
           onChange={(_, value) => setQ(value)}
           onSearch={(value) => {

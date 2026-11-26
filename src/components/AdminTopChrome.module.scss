@@ -40,21 +40,21 @@
   box-shadow: 0 2px 8px color-mix(in srgb, var(--md-sys-color-shadow) 18%, transparent);
 }
 
-.brandText {
+.brandTitle {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.05rem;
-  line-height: 1.1;
+  flex-wrap: nowrap;
+  align-items: baseline;
+  gap: 0.4rem;
+  line-height: 1.17;
   min-width: 0;
 }
 
 .brandName {
   font-family: Montserrat, "Google Sans", system-ui, sans-serif;
   font-weight: 600;
-  font-size: 1.35rem;
+  font-size: 1.8125rem;
   letter-spacing: -0.02em;
-  line-height: 1.2;
+  line-height: 1.17;
   background: linear-gradient(
     90deg,
     #6366f1 0%,
@@ -71,8 +71,11 @@
 }
 
 .brandAdmin {
-  font-size: 0.72rem;
-  font-weight: 500;
-  letter-spacing: -0.01em;
+  font-family: Montserrat, "Google Sans", system-ui, sans-serif;
+  font-size: 1.8125rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.17;
   color: var(--md-sys-color-on-surface);
+  white-space: nowrap;
 }
