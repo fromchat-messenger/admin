@@ -25,6 +25,9 @@ export function LoginSubmitButton({ loading }: LoginSubmitButtonProps) {
       aria-busy={loading}
     >
       <span className={styles.stack}>
+        <span className={styles.sizer} aria-hidden>
+          Continue
+        </span>
         <motion.span
           className={styles.layer}
           initial={false}
