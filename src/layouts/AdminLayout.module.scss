@@ -48,6 +48,15 @@
   width: 100%;
 }
 
+/* Library offsets header/footer entries by −20px to cancel header padding; with padding 0 that shifts items off-center. */
+.rail[data-variant="collapsed"] :global([class*="_header_"] > [data-rail-entry]),
+.rail[data-variant="collapsed"] :global([class*="_footer_"] > [data-rail-entry]) {
+  margin-inline-start: 0;
+  align-self: center;
+  width: 100%;
+  max-width: 96px;
+}
+
 .rail[data-variant="collapsed"] :global([class*="_footer_"]) [class*="_root_"] {
   display: flex;
   justify-content: center;
