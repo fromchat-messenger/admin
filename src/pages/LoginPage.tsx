@@ -3,9 +3,7 @@ import { Navigate } from "react-router-dom";
 import TextField from "m3-expressive-react/TextField";
 import Button from "m3-expressive-react/Button";
 import LoadingIndicator from "m3-expressive-react/LoadingIndicator";
-import { motion } from "framer-motion";
 import { useAuth } from "@/auth/AuthContext";
-import { pageTransition } from "@/motion/spring";
 import styles from "./LoginPage.module.scss";
 
 export function LoginPage() {
@@ -34,12 +32,7 @@ export function LoginPage() {
 
   return (
     <div className={styles.page}>
-      <motion.div
-        className={styles.card}
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={pageTransition}
-      >
+      <div className={styles.card}>
         <header className={styles.intro}>
           <img className={styles.logo} src="/logo-square.png" width={72} height={72} alt="" />
           <h1 className={styles.heading}>FromChat Admin login</h1>
@@ -76,7 +69,7 @@ export function LoginPage() {
           <Button
             type="submit"
             variant="filled"
-            size="md"
+            size="sm"
             shape="square"
             disabled={loading}
             className={styles.submit}
@@ -84,7 +77,7 @@ export function LoginPage() {
             {loading ? <LoadingIndicator /> : "Continue"}
           </Button>
         </form>
-      </motion.div>
+      </div>
     </div>
   );
 }

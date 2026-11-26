@@ -55,9 +55,22 @@
   gap: 1rem;
 }
 
+/* Match Android `ActionButton` (52dp); disable expressive springs on fields. */
 .field {
   --_container-shape: 18px;
-  --_container-height: 56px;
+  --_container-height: 52px;
+  --md-sys-motion-spring-fast-spatial-duration: 0s;
+  --md-sys-motion-spring-fast-effects-duration: 0s;
+  --md-sys-motion-spring-default-spatial-duration: 0s;
+  --md-sys-motion-spring-default-effects-duration: 0s;
+  --md-sys-motion-spring-slow-spatial-duration: 0s;
+  --md-sys-motion-spring-slow-effects-duration: 0s;
+
+  &,
+  & * {
+    transition-duration: 0s !important;
+    animation-duration: 0s !important;
+  }
 }
 
 .error {
@@ -72,9 +85,12 @@
 .submit {
   width: 100%;
   margin-top: 0.35rem;
-  /* FromChat Android `CtaShape` = RoundedCornerShape(percent = 38). */
+  /* Android `ActionButton` min height 52dp; `CtaShape` percent = 38. */
+  --_height: 52px;
   --_shape-round: calc(var(--_height) * 0.38);
   --_shape-square: calc(var(--_height) * 0.38);
   --_shape-pressed: calc(var(--_height) * 0.32);
+  --_shape-morph-duration: 0s;
   border-radius: calc(var(--_height) * 0.38);
+  transition: box-shadow var(--md-sys-motion-duration-short3) var(--md-sys-motion-easing-standard);
 }
