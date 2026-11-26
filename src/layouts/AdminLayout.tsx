@@ -75,8 +75,11 @@ function AdminLayoutShell() {
   const entryPathRef = useRef(location.pathname);
   const sawPaneBusyRef = useRef(false);
   const [paneOverlayAllowed, setPaneOverlayAllowed] = useState(true);
+  const [entryOverlayVisible, setEntryOverlayVisible] = useState(true);
+  const [entryOverlayFading, setEntryOverlayFading] = useState(false);
   const pageTitle = ROUTE_TITLES[location.pathname] ?? "Admin";
-  const showPaneOverlay = busy && paneOverlayAllowed;
+  const showEntryOverlay =
+    paneOverlayAllowed && (entryOverlayVisible || entryOverlayFading);
   const mobileNav = NAV_GROUPS.flatMap((group) => group.items);
 
   useEffect(() => {
@@ -86,18 +89,37 @@ function AdminLayoutShell() {
   useEffect(() => {
     if (location.pathname !== entryPathRef.current) {
       setPaneOverlayAllowed(false);
+      setEntryOverlayVisible(false);
+      setEntryOverlayFading(false);
     }
   }, [location.pathname]);
 
   useEffect(() => {
+    if (!paneOverlayAllowed || entryOverlayFading || !entryOverlayVisible) {
+      return;
+    }
     if (busy) {
       sawPaneBusyRef.current = true;
       return;
     }
     if (sawPaneBusyRef.current) {
-      setPaneOverlayAllowed(false);
+      setEntryOverlayFading(true);
     }
-  }, [busy]);
+  }, [busy, entryOverlayFading, entryOverlayVisible, paneOverlayAllowed]);
+
+  function finishEntryOverlayFade() {
+    setEntryOverlayVisible(false);
+    setEntryOverlayFading(false);
+    setPaneOverlayAllowed(false);
+  }
+
+  useEffect(() => {
+    if (!entryOverlayFading) {
+      return;
+    }
+    const timeout = window.setTimeout(finishEntryOverlayFade, 480);
+    return () => window.clearTimeout(timeout);
+  }, [entryOverlayFading]);
 
   function signOut() {
     logout();
@@ -174,24 +196,26 @@ function AdminLayoutShell() {
         </header>
 
         <div className={styles.contentStage}>
-          <AnimatePresence initial={false}>
-            {showPaneOverlay ? (
-              <motion.div
-                key="main-pane-busy"
-                className={styles.mainPaneOverlay}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ ...pageTransition, mass: 0.5 }}
-                role="status"
-                aria-live="polite"
-                aria-busy
-                aria-label={label}
-              >
-                <LoadingIndicator variant="uncontained" aria-label={label} />
-              </motion.div>
-            ) : null}
-          </AnimatePresence>
+          {showEntryOverlay ? (
+            <div
+              className={
+                entryOverlayFading
+                  ? `${styles.mainPaneOverlay} ${styles.mainPaneOverlayHide}`
+                  : styles.mainPaneOverlay
+              }
+              role="status"
+              aria-live="polite"
+              aria-busy={!entryOverlayFading}
+              aria-label={label}
+              onTransitionEnd={(event) => {
+                if (entryOverlayFading && event.propertyName === "opacity") {
+                  finishEntryOverlayFade();
+                }
+              }}
+            >
+              <LoadingIndicator variant="uncontained" aria-label={label} />
+            </div>
+          ) : null}
 
           <AnimatePresence mode="popLayout" initial={false}>
             <motion.main
