@@ -12,7 +12,7 @@
 
 .content {
   transform-origin: top center;
-  padding-bottom: 0.35rem;
+  padding-bottom: var(--login-stack-gap, 1rem);
 }
 
 .body {
