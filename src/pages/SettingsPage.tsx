@@ -3,7 +3,8 @@ import Button from "m3-expressive-react/Button";
 import LoadingIndicator from "m3-expressive-react/LoadingIndicator";
 import { useAuth } from "@/auth/AuthContext";
 import { apiFetch } from "@/api/client";
-import styles from "./AccountsPage.module.scss";
+import { PageHeader } from "@/components/PageHeader";
+import page from "@/styles/admin-page.module.scss";
 
 export function SettingsPage() {
   const { session } = useAuth();
@@ -32,25 +33,27 @@ export function SettingsPage() {
   }
 
   return (
-    <div className={styles.page}>
-      <h1>Settings</h1>
-      <dl className={styles.dl}>
-        <dt>Instance ID</dt>
-        <dd>{info.instance_id}</dd>
-        <dt>Encryption mode</dt>
-        <dd>{info.encryption_mode}</dd>
-        <dt>Changed at</dt>
-        <dd>{info.encryption_mode_changed_at || "—"}</dd>
-      </dl>
-      <div className={styles.toolbar}>
-        <Button variant="outlined" disabled={loading} onClick={() => setMode("compliance")}>
-          Compliance
-        </Button>
-        <Button variant="outlined" disabled={loading} onClick={() => setMode("e2ee")}>
-          E2EE
-        </Button>
-        {loading ? <LoadingIndicator /> : null}
-      </div>
+    <div className={page.page}>
+      <PageHeader title="Settings" subtitle="Instance identity and encryption mode" />
+      <section className={`${page.surfaceCard} ${page.section}`}>
+        <dl className={page.dl}>
+          <dt>Instance ID</dt>
+          <dd>{info.instance_id}</dd>
+          <dt>Encryption mode</dt>
+          <dd>{info.encryption_mode}</dd>
+          <dt>Changed at</dt>
+          <dd>{info.encryption_mode_changed_at || "—"}</dd>
+        </dl>
+        <div className={page.toolbar}>
+          <Button variant="outlined" disabled={loading} onClick={() => setMode("compliance")}>
+            Compliance
+          </Button>
+          <Button variant="outlined" disabled={loading} onClick={() => setMode("e2ee")}>
+            E2EE
+          </Button>
+          {loading ? <LoadingIndicator /> : null}
+        </div>
+      </section>
     </div>
   );
 }

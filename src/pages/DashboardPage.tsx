@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { motion } from "framer-motion";
 import {
   Area,
   AreaChart,
@@ -8,11 +9,13 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import Card from "m3-expressive-react/Card";
 import LoadingIndicator from "m3-expressive-react/LoadingIndicator";
 import { useAuth } from "@/auth/AuthContext";
 import { apiFetch } from "@/api/client";
 import { apiWebSocketUrl } from "@/config";
+import { PageHeader } from "@/components/PageHeader";
+import { StatCard } from "@/components/StatCard";
+import page from "@/styles/admin-page.module.scss";
 import styles from "./DashboardPage.module.scss";
 
 type TickMessage = {
@@ -21,6 +24,13 @@ type TickMessage = {
   cpu_ring?: { cpu_percent: number }[];
   totals?: Record<string, number>;
 };
+
+function formatNumber(n: number | undefined) {
+  if (n === undefined || Number.isNaN(n)) {
+    return "—";
+  }
+  return new Intl.NumberFormat().format(n);
+}
 
 export function DashboardPage() {
   const { session } = useAuth();
@@ -34,7 +44,7 @@ export function DashboardPage() {
       return;
     }
     let cancelled = false;
-    apiFetch<{
+    void apiFetch<{
       users_registered: number;
       public_messages: number;
       dm_messages: number;
@@ -83,53 +93,121 @@ export function DashboardPage() {
 
   const statCards = useMemo(
     () => [
-      { label: "Registered users", value: totals.users_registered ?? "—" },
-      { label: "Public messages", value: totals.public_messages ?? "—" },
-      { label: "Direct messages", value: totals.dm_messages ?? "—" },
-      { label: "Attachments", value: totals.message_files ?? "—" },
+      {
+        label: "Registered users",
+        value: formatNumber(totals.users_registered),
+        icon: "group",
+        tone: "violet" as const,
+      },
+      {
+        label: "Public messages",
+        value: formatNumber(totals.public_messages),
+        icon: "forum",
+        tone: "sky" as const,
+      },
+      {
+        label: "Direct messages",
+        value: formatNumber(totals.dm_messages),
+        icon: "chat",
+        tone: "mint" as const,
+      },
+      {
+        label: "Attachments",
+        value: formatNumber(totals.message_files),
+        icon: "attach_file",
+        tone: "peach" as const,
+      },
     ],
     [totals],
   );
 
+  const greeting = session?.username ? `Welcome back, ${session.username}` : "Welcome";
+
   return (
-    <div className={styles.page}>
-      <header className={styles.header}>
-        <h1>Dashboard</h1>
-        <p className={styles.status}>
-          {connected ? "Live metrics connected" : <LoadingIndicator />}
-        </p>
-      </header>
+    <div className={page.page}>
+      <PageHeader
+        title={greeting}
+        subtitle={
+          connected ? (
+            <span className={styles.live}>
+              <span className={styles.liveDot} aria-hidden />
+              Live metrics connected
+            </span>
+          ) : (
+            <span className={styles.live}>
+              <LoadingIndicator /> Connecting to metrics…
+            </span>
+          )
+        }
+      />
+
+      <p className={page.hint}>
+        Instance overview — counts refresh from the database; host stats stream over WebSocket.
+      </p>
+
       <div className={styles.stats}>
         {statCards.map((card) => (
-          <Card key={card.label} className={styles.statCard}>
-            <span className={styles.statLabel}>{card.label}</span>
-            <strong className={styles.statValue}>{card.value}</strong>
-          </Card>
+          <StatCard
+            key={card.label}
+            label={card.label}
+            value={card.value}
+            icon={card.icon}
+            tone={card.tone}
+          />
         ))}
       </div>
-      <Card className={styles.chartCard}>
-        <h2>CPU usage</h2>
+
+      <motion.section className={`${page.surfaceCard} ${styles.chartPanel}`} layout>
+        <motion.div
+          className={styles.chartHead}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.25 }}
+        >
+          <div>
+            <h2 className={styles.chartTitle}>CPU usage</h2>
+            <p className={page.muted}>Rolling samples from the metrics WebSocket</p>
+          </div>
+          <motion.div className={styles.hostPills} layout>
+            {[
+              { label: "CPU", value: host.cpu },
+              { label: "Memory", value: host.mem },
+              { label: "Disk", value: host.disk },
+            ].map((item) => (
+              <span key={item.label} className={styles.hostPill}>
+                {item.label} {item.value.toFixed(0)}%
+              </span>
+            ))}
+          </motion.div>
+        </motion.div>
         <div className={styles.chartWrap}>
-          <ResponsiveContainer width="100%" height={240}>
+          <ResponsiveContainer width="100%" height={280}>
             <AreaChart data={cpuSeries}>
               <defs>
                 <linearGradient id="cpuFill" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="var(--md-sys-color-primary)" stopOpacity={0.35} />
+                  <stop offset="0%" stopColor="var(--md-sys-color-primary)" stopOpacity={0.4} />
                   <stop offset="100%" stopColor="var(--md-sys-color-primary)" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="color-mix(in srgb, var(--md-sys-color-outline) 25%, transparent)" />
+              <CartesianGrid
+                strokeDasharray="4 4"
+                stroke="color-mix(in srgb, var(--md-sys-color-outline) 20%, transparent)"
+                vertical={false}
+              />
               <XAxis dataKey="t" hide />
-              <YAxis domain={[0, 100]} unit="%" width={40} />
+              <YAxis domain={[0, 100]} unit="%" width={44} tick={{ fontSize: 12 }} />
               <Tooltip formatter={(v) => [`${v}%`, "CPU"]} />
-              <Area type="monotone" dataKey="v" stroke="var(--md-sys-color-primary)" fill="url(#cpuFill)" />
+              <Area
+                type="monotone"
+                dataKey="v"
+                stroke="var(--md-sys-color-primary)"
+                strokeWidth={2}
+                fill="url(#cpuFill)"
+              />
             </AreaChart>
           </ResponsiveContainer>
         </div>
-        <p className={styles.hostMeta}>
-          CPU {host.cpu.toFixed(0)}% · Memory {host.mem.toFixed(0)}% · Disk {host.disk.toFixed(0)}%
-        </p>
-      </Card>
+      </motion.section>
     </div>
   );
 }

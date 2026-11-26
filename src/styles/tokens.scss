@@ -1,0 +1,25 @@
+:root {
+  --admin-sidebar-width: 260px;
+  --admin-topbar-height: 4rem;
+  --admin-canvas: #eef1f8;
+  --admin-sidebar-bg: #151821;
+  --admin-sidebar-border: color-mix(in srgb, #fff 8%, transparent);
+  --admin-sidebar-fg: #e8eaef;
+  --admin-sidebar-muted: #8b93a7;
+  --admin-sidebar-active: color-mix(in srgb, var(--md-sys-color-primary) 22%, #1e2433);
+  --admin-card-radius: 20px;
+  --admin-card-shadow: 0 1px 2px color-mix(in srgb, #0f172a 6%, transparent),
+    0 8px 28px color-mix(in srgb, #0f172a 5%, transparent);
+  --admin-stat-peach: color-mix(in srgb, #ff8a65 18%, var(--md-sys-color-surface));
+  --admin-stat-mint: color-mix(in srgb, #66bb6a 16%, var(--md-sys-color-surface));
+  --admin-stat-sky: color-mix(in srgb, #42a5f5 16%, var(--md-sys-color-surface));
+  --admin-stat-violet: color-mix(in srgb, var(--md-sys-color-primary) 20%, var(--md-sys-color-surface));
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --admin-canvas: #0f1118;
+    --admin-card-shadow: 0 1px 2px color-mix(in srgb, #000 35%, transparent),
+      0 12px 32px color-mix(in srgb, #000 25%, transparent);
+  }
+}

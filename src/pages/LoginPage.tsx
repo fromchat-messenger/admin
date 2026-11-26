@@ -34,35 +34,71 @@ export function LoginPage() {
 
   return (
     <div className={styles.page}>
+      <section className={styles.hero} aria-hidden>
+        <div className={styles.heroInner}>
+          <span className={styles.heroMark}>
+            <span className="material-symbols-rounded">forum</span>
+          </span>
+          <h1 className={styles.heroTitle}>Operate your instance with confidence</h1>
+          <p className={styles.heroCopy}>
+            Users, moderation, compliance exports, and live health metrics in one console built for
+            FromChat administrators.
+          </p>
+          <ul className={styles.heroList}>
+            <li>
+              <span className="material-symbols-rounded">monitoring</span> Live host metrics
+            </li>
+            <li>
+              <span className="material-symbols-rounded">shield</span> Moderation &amp; audit trail
+            </li>
+            <li>
+              <span className="material-symbols-rounded">lock</span> Compliance-mode bundle export
+            </li>
+          </ul>
+        </div>
+      </section>
+
       <motion.section
-        className={styles.card}
-        initial={{ opacity: 0, scale: 0.96, y: 16 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
+        className={styles.formPane}
+        initial={{ opacity: 0, x: 16 }}
+        animate={{ opacity: 1, x: 0 }}
         transition={pageTransition}
       >
-        <h1 className={styles.title}>FromChat Admin</h1>
-        <p className={styles.subtitle}>Sign in with your administrator account.</p>
-        <form className={styles.form} onSubmit={onSubmit}>
-          <TextField
-            label="Username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            autoComplete="username"
-            required
-          />
-          <TextField
-            label="Password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            autoComplete="current-password"
-            required
-          />
-          {error ? <p className={styles.error} role="alert">{error}</p> : null}
-          <Button type="submit" variant="filled" disabled={loading} className={styles.submit}>
-            {loading ? <LoadingIndicator /> : "Sign in"}
-          </Button>
-        </form>
+        <motion.div
+          className={styles.card}
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ ...pageTransition, delay: 0.06 }}
+        >
+          <h2 className={styles.title}>Sign in</h2>
+          <p className={styles.subtitle}>Administrator account only (user id 1).</p>
+          <form className={styles.form} onSubmit={onSubmit}>
+            <TextField
+              label="Username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              autoComplete="username"
+              required
+            />
+            <TextField
+              label="Password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
+              required
+            />
+            {error ? (
+              <p className={styles.error} role="alert">
+                {error}
+              </p>
+            ) : null}
+            <Button type="submit" variant="filled" disabled={loading} className={styles.submit}>
+              {loading ? <LoadingIndicator /> : "Continue"}
+            </Button>
+          </form>
+        </motion.div>
+        <p className={styles.foot}>FromChat Admin · Material 3 Expressive</p>
       </motion.section>
     </div>
   );

@@ -1,10 +1,13 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Button from "m3-expressive-react/Button";
 import TextField from "m3-expressive-react/TextField";
 import LoadingIndicator from "m3-expressive-react/LoadingIndicator";
 import { useAuth } from "@/auth/AuthContext";
 import { apiFetch, ApiError } from "@/api/client";
-import styles from "./AccountsPage.module.scss";
+import { PageHeader } from "@/components/PageHeader";
+import { StatusChip } from "@/components/StatusChip";
+import { UserAvatar } from "@/components/UserAvatar";
+import page from "@/styles/admin-page.module.scss";
 
 type UserRow = {
   id: number;
@@ -17,12 +20,15 @@ type UserRow = {
   deleted: boolean;
 };
 
+type Segment = "all" | "active" | "suspended";
+
 export function AccountsPage() {
   const { session } = useAuth();
   const [rows, setRows] = useState<UserRow[]>([]);
   const [total, setTotal] = useState(0);
   const [offset, setOffset] = useState(0);
   const [q, setQ] = useState("");
+  const [segment, setSegment] = useState<Segment>("all");
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<string | null>(null);
   const limit = 20;
@@ -58,6 +64,16 @@ export function AccountsPage() {
     void load();
   }, [load]);
 
+  const filtered = useMemo(() => {
+    if (segment === "all") {
+      return rows;
+    }
+    if (segment === "active") {
+      return rows.filter((user) => !user.deleted && !user.suspended);
+    }
+    return rows.filter((user) => user.suspended && !user.deleted);
+  }, [rows, segment]);
+
   async function act(path: string, body?: object) {
     if (!session) {
       return;
@@ -76,19 +92,46 @@ export function AccountsPage() {
   }
 
   return (
-    <div className={styles.page}>
-      <h1>Accounts</h1>
-      <div className={styles.toolbar}>
-        <TextField label="Search" value={q} onChange={(e) => setQ(e.target.value)} />
-        <Button variant="filled" onClick={() => { setOffset(0); void load(); }}>
+    <div className={page.page}>
+      <PageHeader
+        title="Accounts"
+        subtitle={`${total} registered · search and moderate from this list`}
+        actions={
+          <div className={page.segmented} role="tablist" aria-label="Filter accounts">
+            {(["all", "active", "suspended"] as const).map((key) => (
+              <button
+                key={key}
+                type="button"
+                role="tab"
+                data-active={segment === key}
+                aria-selected={segment === key}
+                onClick={() => setSegment(key)}
+              >
+                {key === "all" ? "All" : key === "active" ? "Active" : "Suspended"}
+              </button>
+            ))}
+          </div>
+        }
+      />
+
+      <div className={`${page.surfaceCard} ${page.toolbar}`}>
+        <TextField label="Search users" value={q} onChange={(e) => setQ(e.target.value)} />
+        <Button
+          variant="filled"
+          onClick={() => {
+            setOffset(0);
+            void load();
+          }}
+        >
           Search
         </Button>
       </div>
+
       {loading ? (
         <LoadingIndicator />
       ) : (
-        <div className={styles.tableWrap}>
-          <table className={styles.table}>
+        <div className={page.tableWrap}>
+          <table className={page.table}>
             <thead>
               <tr>
                 <th>User</th>
@@ -97,27 +140,46 @@ export function AccountsPage() {
               </tr>
             </thead>
             <tbody>
-              {rows.map((user) => (
+              {filtered.map((user) => (
                 <tr key={user.id}>
                   <td>
-                    <strong>{user.display_name}</strong>
-                    <div className={styles.muted}>@{user.username} · id {user.id}</div>
+                    <div className={page.userCell}>
+                      <UserAvatar name={user.display_name || user.username} />
+                      <div className={page.userMeta}>
+                        <strong>{user.display_name}</strong>
+                        <span className={page.muted}>
+                          @{user.username} · id {user.id}
+                        </span>
+                      </div>
+                    </div>
                   </td>
                   <td>
-                    {user.deleted ? "Deleted" : user.suspended ? "Suspended" : "Active"}
-                    {user.suspended_until ? (
-                      <div className={styles.muted}>Until {new Date(user.suspended_until).toLocaleString()}</div>
+                    {user.id === 1 ? (
+                      <StatusChip status="owner">Owner</StatusChip>
+                    ) : user.deleted ? (
+                      <StatusChip status="deleted">Deleted</StatusChip>
+                    ) : user.suspended ? (
+                      <div>
+                        <StatusChip status="suspended">Suspended</StatusChip>
+                        {user.suspended_until ? (
+                          <p className={page.muted}>
+                            Until {new Date(user.suspended_until).toLocaleString()}
+                          </p>
+                        ) : null}
+                      </div>
+                    ) : (
+                      <StatusChip status="active">Active</StatusChip>
+                    )}
+                    {user.verified && user.id !== 1 ? (
+                      <div className={page.verifiedRow}>
+                        <StatusChip status="verified">Verified</StatusChip>
+                      </div>
                     ) : null}
                   </td>
-                  <td className={styles.actions}>
+                  <td className={page.actions}>
                     {user.id !== 1 ? (
                       <>
-                        <Button
-                          variant="text"
-                          onClick={() =>
-                            act(`/user/${user.id}/verify`)
-                          }
-                        >
+                        <Button variant="text" onClick={() => act(`/user/${user.id}/verify`)}>
                           {user.verified ? "Unverify" : "Verify"}
                         </Button>
                         {user.suspended ? (
@@ -134,16 +196,11 @@ export function AccountsPage() {
                             Suspend
                           </Button>
                         )}
-                        <Button
-                          variant="text"
-                          onClick={() => act(`/user/${user.id}/delete`)}
-                        >
+                        <Button variant="text" onClick={() => act(`/user/${user.id}/delete`)}>
                           Delete
                         </Button>
                       </>
-                    ) : (
-                      <span className={styles.muted}>Owner</span>
-                    )}
+                    ) : null}
                   </td>
                 </tr>
               ))}
@@ -151,7 +208,8 @@ export function AccountsPage() {
           </table>
         </div>
       )}
-      <div className={styles.pager}>
+
+      <div className={page.pager}>
         <Button variant="outlined" disabled={offset === 0} onClick={() => setOffset(Math.max(0, offset - limit))}>
           Previous
         </Button>
@@ -162,7 +220,7 @@ export function AccountsPage() {
           Next
         </Button>
       </div>
-      {message ? <p className={styles.message}>{message}</p> : null}
+      {message ? <p className={page.message}>{message}</p> : null}
     </div>
   );
 }

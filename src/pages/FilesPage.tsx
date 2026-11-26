@@ -3,7 +3,8 @@ import Button from "m3-expressive-react/Button";
 import LoadingIndicator from "m3-expressive-react/LoadingIndicator";
 import { useAuth } from "@/auth/AuthContext";
 import { apiFetch } from "@/api/client";
-import styles from "./AccountsPage.module.scss";
+import { PageHeader } from "@/components/PageHeader";
+import page from "@/styles/admin-page.module.scss";
 
 type FileRow = { stored_name: string; kind: string; size_bytes: number; modified_at: string };
 
@@ -37,28 +38,28 @@ export function FilesPage() {
   }, [session, prefix]);
 
   return (
-    <div className={styles.page}>
-      <h1>Files</h1>
-      <div className={styles.toolbar}>
+    <div className={page.page}>
+      <PageHeader title="Files" subtitle="Browse stored objects via the main API proxy" />
+      <div className={`${page.surfaceCard} ${page.toolbar}`}>
         <input
           aria-label="Prefix filter"
           value={prefix}
           onChange={(e) => setPrefix(e.target.value)}
-          placeholder="Prefix filter"
-          className={styles.input}
+          placeholder="Filter by path prefix…"
+          className={page.input}
         />
         <Button variant="filled" onClick={() => void load()}>
           Refresh
         </Button>
       </div>
       {loading && !files.length ? <LoadingIndicator /> : null}
-      <div className={styles.tableWrap}>
-        <table className={styles.table}>
+      <div className={page.tableWrap}>
+        <table className={page.table}>
           <thead>
             <tr>
               <th>Name</th>
               <th>Size</th>
-              <th />
+              <th aria-label="Actions" />
             </tr>
           </thead>
           <tbody>
@@ -66,10 +67,10 @@ export function FilesPage() {
               <tr key={file.stored_name}>
                 <td>
                   <div>{file.stored_name}</div>
-                  <div className={styles.muted}>{file.kind}</div>
+                  <div className={page.muted}>{file.kind}</div>
                 </td>
                 <td>{(file.size_bytes / 1024).toFixed(1)} KB</td>
-                <td className={styles.actions}>
+                <td className={page.actions}>
                   <Button
                     variant="text"
                     onClick={() => {

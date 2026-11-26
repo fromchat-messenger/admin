@@ -1,0 +1,49 @@
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  white-space: nowrap;
+  background: var(--md-sys-color-surface-container-high);
+  color: var(--md-sys-color-on-surface);
+
+  &[data-status="active"] {
+    background: color-mix(in srgb, #66bb6a 18%, var(--md-sys-color-surface-container));
+    color: color-mix(in srgb, #2e7d32 85%, var(--md-sys-color-on-surface));
+  }
+
+  &[data-status="suspended"] {
+    background: color-mix(in srgb, #ffb74d 22%, var(--md-sys-color-surface-container));
+    color: color-mix(in srgb, #e65100 70%, var(--md-sys-color-on-surface));
+  }
+
+  &[data-status="deleted"] {
+    background: color-mix(in srgb, var(--md-sys-color-error) 16%, var(--md-sys-color-surface-container));
+    color: var(--md-sys-color-error);
+  }
+
+  &[data-status="owner"] {
+    background: color-mix(in srgb, var(--md-sys-color-primary) 18%, var(--md-sys-color-surface-container));
+    color: var(--md-sys-color-primary);
+  }
+
+  &[data-status="verified"] {
+    background: color-mix(in srgb, #42a5f5 18%, var(--md-sys-color-surface-container));
+  }
+
+  &[data-status="neutral"] {
+    background: var(--md-sys-color-surface-container-highest);
+    color: var(--md-sys-color-on-surface-variant);
+  }
+}
+
+.dot {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.85;
+}

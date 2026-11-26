@@ -1,0 +1,26 @@
+.avatar {
+  display: inline-grid;
+  place-items: center;
+  border-radius: 14px;
+  font-weight: 500;
+  color: #fff;
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--md-sys-color-primary) 90%, #fff),
+    color-mix(in srgb, var(--md-sys-color-primary) 60%, #000)
+  );
+  flex-shrink: 0;
+
+  &[data-size="sm"] {
+    width: 2rem;
+    height: 2rem;
+    font-size: 0.7rem;
+    border-radius: 10px;
+  }
+
+  &[data-size="md"] {
+    width: 2.65rem;
+    height: 2.65rem;
+    font-size: 0.85rem;
+  }
+}

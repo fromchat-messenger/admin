@@ -4,7 +4,8 @@ import TextField from "m3-expressive-react/TextField";
 import LoadingIndicator from "m3-expressive-react/LoadingIndicator";
 import { useAuth } from "@/auth/AuthContext";
 import { apiFetch } from "@/api/client";
-import styles from "./AccountsPage.module.scss";
+import { PageHeader } from "@/components/PageHeader";
+import page from "@/styles/admin-page.module.scss";
 
 export function ModerationPage() {
   const { session } = useAuth();
@@ -43,58 +44,68 @@ export function ModerationPage() {
   }, [session]);
 
   return (
-    <div className={styles.page}>
-      <h1>Moderation</h1>
+    <div className={page.page}>
+      <PageHeader title="Moderation" subtitle="Blocklist, filter testing, and flagged content events" />
       {loading ? <LoadingIndicator /> : null}
       {filterOff ? (
-        <p className={styles.hint}>Chat filter is disabled on this instance; blocklist editing is unavailable.</p>
+        <p className={page.hint}>
+          Chat filter is disabled on this instance; blocklist editing is unavailable. Enable the filter
+          service in production for full parity.
+        </p>
       ) : null}
-      <section className={styles.section}>
-        <h2>Blocklist</h2>
-        <div className={styles.wordList}>
-          {words.map((word) => (
-            <span key={word} className={styles.chip}>
-              {word}
-            </span>
-          ))}
-        </div>
-        <div className={styles.toolbar}>
-          <TextField label="Add word" value={newWord} onChange={(e) => setNewWord(e.target.value)} />
+
+      <div className={page.twoCol}>
+        <section className={`${page.surfaceCard} ${page.section}`}>
+          <h2>Blocklist</h2>
+          <div className={page.wordList}>
+            {words.map((word) => (
+              <span key={word} className={page.chip}>
+                {word}
+              </span>
+            ))}
+            {!words.length && !loading ? <p className={page.muted}>No blocked words yet.</p> : null}
+          </div>
+          <div className={page.toolbar}>
+            <TextField label="Add word" value={newWord} onChange={(e) => setNewWord(e.target.value)} />
+            <Button
+              variant="filled"
+              disabled={filterOff}
+              onClick={() =>
+                session &&
+                apiFetch("/moderation/blocklist", session.token, {
+                  method: "POST",
+                  body: JSON.stringify({ words: [newWord.trim()] }),
+                }).then(() => refresh())
+              }
+            >
+              Add
+            </Button>
+          </div>
+        </section>
+
+        <section className={`${page.surfaceCard} ${page.section}`}>
+          <h2>Filter tester</h2>
+          <TextField label="Text" value={testText} onChange={(e) => setTestText(e.target.value)} />
           <Button
-            variant="filled"
+            variant="outlined"
             onClick={() =>
               session &&
-              apiFetch("/moderation/blocklist", session.token, {
+              apiFetch<{ allowed: boolean; reason_detail: string }>("/admin/filter/check", session.token, {
                 method: "POST",
-                body: JSON.stringify({ words: [newWord.trim()] }),
-              }).then(() => refresh())
+                body: JSON.stringify({ text: testText }),
+              }).then((r) => setTestResult(r.allowed ? "Allowed" : r.reason_detail))
             }
           >
-            Add
+            Check
           </Button>
-        </div>
-      </section>
-      <section className={styles.section}>
-        <h2>Filter tester</h2>
-        <TextField label="Text" value={testText} onChange={(e) => setTestText(e.target.value)} />
-        <Button
-          variant="outlined"
-          onClick={() =>
-            session &&
-            apiFetch<{ allowed: boolean; reason_detail: string }>("/admin/filter/check", session.token, {
-              method: "POST",
-              body: JSON.stringify({ text: testText }),
-            }).then((r) => setTestResult(r.allowed ? "Allowed" : r.reason_detail))
-          }
-        >
-          Check
-        </Button>
-        {testResult ? <p>{testResult}</p> : null}
-      </section>
-      <section className={styles.section}>
+          {testResult ? <p className={page.message}>{testResult}</p> : null}
+        </section>
+      </div>
+
+      <section className={`${page.surfaceCard} ${page.section}`}>
         <h2>Flagged events</h2>
-        <div className={styles.tableWrap}>
-          <table className={styles.table}>
+        <div className={page.tableWrap}>
+          <table className={page.table}>
             <thead>
               <tr>
                 <th>When</th>
