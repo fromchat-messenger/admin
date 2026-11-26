@@ -9,7 +9,12 @@ type AdminProfileMenuProps = {
   onSignOut: () => void;
 };
 
-export function AdminProfileMenu({ username, mode, onToggleTheme, onSignOut }: AdminProfileMenuProps) {
+export function AdminProfileMenu({
+  username,
+  mode,
+  onToggleTheme,
+  onSignOut,
+}: AdminProfileMenuProps) {
   const menuId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);

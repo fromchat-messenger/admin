@@ -2,15 +2,12 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import LoadingIndicator from "m3-expressive-react/LoadingIndicator";
-import NavigationRail, {
-  NavigationRailAction,
-  NavigationRailItem,
-  type NavigationRailVariant,
-} from "m3-expressive-react/NavigationRail";
+import NavigationRail, { NavigationRailItem, type NavigationRailVariant } from "m3-expressive-react/NavigationRail";
+import { AdminTopChrome } from "@/components/AdminTopChrome";
+import { AdminProfileMenu } from "@/components/AdminProfileMenu";
 import { useAuth } from "@/auth/AuthContext";
 import { useAdminTheme } from "@/theme/AdminTheme";
 import { pageTransition } from "@/motion/spring";
-import { AdminProfileMenu } from "@/components/AdminProfileMenu";
 import { MainPaneBusyProvider, useMainPaneBusyContext } from "@/layout/MainPaneBusy";
 import styles from "./AdminLayout.module.scss";
 
@@ -125,6 +122,10 @@ function AdminLayoutShell() {
     navigate("/login", { replace: true });
   }
 
+  function toggleRail() {
+    setRailVariant(railExpanded ? "collapsed" : "expanded");
+  }
+
   return (
     <motion.div
       className={styles.shell}
@@ -145,41 +146,6 @@ function AdminLayoutShell() {
         variant={railVariant}
         value={railValue}
         onChange={(_, value) => navigate(value)}
-        header={
-          <>
-            <div className={styles.brand}>
-              <img
-                className={styles.brandLogo}
-                src="/logo-square.png"
-                width={44}
-                height={44}
-                alt="FromChat Admin"
-              />
-              <div className={styles.brandText}>
-                <span className={styles.brandName}>FromChat</span>
-                <span className={styles.brandAdmin}>Admin</span>
-              </div>
-            </div>
-            <NavigationRailAction
-              icon={
-                <span className="material-symbols-rounded">
-                  {railExpanded ? "chevron_left" : "menu"}
-                </span>
-              }
-              label={railExpanded ? "Collapse" : "Menu"}
-              aria-label={railExpanded ? "Collapse navigation rail" : "Expand navigation rail"}
-              onClick={() => setRailVariant(railExpanded ? "collapsed" : "expanded")}
-            />
-          </>
-        }
-        footer={
-          <AdminProfileMenu
-            username={session?.username ?? "Admin"}
-            mode={mode}
-            onToggleTheme={toggleMode}
-            onSignOut={signOut}
-          />
-        }
       >
         {NAV_ITEMS.map((item) => (
           <NavigationRailItem
@@ -191,6 +157,28 @@ function AdminLayoutShell() {
           />
         ))}
       </NavigationRail>
+
+      <AdminTopChrome
+        railExpanded={railExpanded}
+        onToggleRail={toggleRail}
+        username={session?.username ?? "Admin"}
+        mode={mode}
+        onToggleTheme={toggleMode}
+        onSignOut={signOut}
+      />
+
+      <header className={styles.mobileChrome}>
+        <div className={styles.mobileBrand}>
+          <img className={styles.mobileLogo} src="/logo-square.png" width={36} height={36} alt="" />
+          <span className={styles.mobileTitle}>FromChat Admin</span>
+        </div>
+        <AdminProfileMenu
+          username={session?.username ?? "Admin"}
+          mode={mode}
+          onToggleTheme={toggleMode}
+          onSignOut={signOut}
+        />
+      </header>
 
       <div className={styles.main}>
         <div className={styles.contentStage}>
