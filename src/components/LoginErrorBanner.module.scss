@@ -1,10 +1,12 @@
 .shell {
   overflow: hidden;
   min-height: 0;
+  contain: layout paint;
 }
 
 .inner {
-  /* Natural block height; shell clips while height tweens. */
+  overflow: hidden;
+  min-height: 0;
 }
 
 .body {
@@ -15,4 +17,11 @@
   color: var(--md-sys-color-error);
   font-size: 0.875rem;
   line-height: 1.45;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shell,
+  .body {
+    transition: none !important;
+  }
 }

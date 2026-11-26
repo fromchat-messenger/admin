@@ -1,14 +1,26 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useLayoutEffect, useRef, useState } from "react";
+import { pageTransition } from "@/motion/spring";
 import styles from "./LoginErrorBanner.module.scss";
 
-const EASE = [0.32, 0, 0.2, 1] as const;
+const shellSpring = {
+  ...pageTransition,
+  bounce: 0,
+};
 
-const shellEnter = { duration: 0.2, ease: EASE };
-const shellExit = { duration: 0.13, ease: EASE };
+const bodySpring = {
+  ...pageTransition,
+  mass: 0.65,
+  bounce: 0,
+};
 
-const bodyEnter = { delay: 0.11, duration: 0.09, ease: EASE };
-const bodyExit = { duration: 0.06, ease: EASE };
+const bodyExitSpring = {
+  ...pageTransition,
+  stiffness: 460,
+  damping: 36,
+  mass: 0.55,
+  bounce: 0,
+};
 
 type LoginErrorBannerProps = {
   message: string | null;
@@ -41,16 +53,20 @@ export function LoginErrorBanner({ message }: LoginErrorBannerProps) {
           className={styles.shell}
           initial={{ height: 0 }}
           animate={{ height }}
-          exit={{ height: 0, transition: shellExit }}
-          transition={shellEnter}
+          exit={{ height: 0, transition: shellSpring }}
+          transition={shellSpring}
         >
           <div ref={innerRef} className={styles.inner}>
             <motion.p
               className={styles.body}
               role="alert"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1, transition: bodyEnter }}
-              exit={{ opacity: 0, transition: bodyExit }}
+              initial={{ opacity: 0, y: -6 }}
+              animate={{
+                opacity: 1,
+                y: 0,
+                transition: { ...bodySpring, opacity: { ...bodySpring, delay: 0.03 } },
+              }}
+              exit={{ opacity: 0, y: -4, transition: bodyExitSpring }}
             >
               {message}
             </motion.p>
