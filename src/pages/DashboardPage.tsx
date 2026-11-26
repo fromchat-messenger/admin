@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { motion } from "framer-motion";
 import {
   Area,
   AreaChart,
@@ -19,6 +18,8 @@ import { StatCard } from "@/components/StatCard";
 import page from "@/styles/admin-page.module.scss";
 import styles from "./DashboardPage.module.scss";
 
+const CPU_WINDOW = 60;
+
 type TickMessage = {
   type: "tick" | "history";
   host?: { cpu_percent: number; memory_percent: number; disk_percent: number };
@@ -33,14 +34,32 @@ function formatNumber(n: number | undefined) {
   return new Intl.NumberFormat().format(n);
 }
 
+function emptyCpuWindow(): (number | null)[] {
+  return Array.from({ length: CPU_WINDOW }, () => null);
+}
+
+function mergeRingIntoWindow(ring: number[]): (number | null)[] {
+  const slots = emptyCpuWindow();
+  const start = Math.max(0, CPU_WINDOW - ring.length);
+  ring.forEach((value, index) => {
+    slots[start + index] = value;
+  });
+  return slots;
+}
+
 export function DashboardPage() {
   const { session } = useAuth();
   const { mode } = useAdminTheme();
   const chartTick = mode === "dark" ? "rgba(230, 225, 240, 0.75)" : "rgba(29, 27, 32, 0.65)";
   const [connected, setConnected] = useState(false);
   const [host, setHost] = useState({ cpu: 0, mem: 0, disk: 0 });
-  const [cpuSeries, setCpuSeries] = useState<{ t: string; v: number }[]>([]);
+  const [cpuSlots, setCpuSlots] = useState<(number | null)[]>(emptyCpuWindow);
   const [totals, setTotals] = useState<Record<string, number>>({});
+
+  const displayName = useMemo(() => {
+    const name = session?.username ?? "admin";
+    return name.length > 24 ? `${name.slice(0, 22)}…` : name;
+  }, [session?.username]);
 
   useEffect(() => {
     if (!session?.token) {
@@ -79,13 +98,10 @@ export function DashboardPage() {
           disk: data.host.disk_percent,
         });
       }
-      if (data.cpu_ring) {
-        setCpuSeries(
-          data.cpu_ring.map((point, index) => ({
-            t: String(index),
-            v: point.cpu_percent,
-          })),
-        );
+      if (data.type === "tick" && data.host) {
+        setCpuSlots((prev) => [...prev.slice(1), data.host!.cpu_percent]);
+      } else if (data.cpu_ring?.length) {
+        setCpuSlots(mergeRingIntoWindow(data.cpu_ring.map((point) => point.cpu_percent)));
       }
       if (data.totals) {
         setTotals(data.totals);
@@ -94,84 +110,56 @@ export function DashboardPage() {
     return () => socket.close();
   }, [session?.token]);
 
+  const chartData = useMemo(
+    () => cpuSlots.map((cpu, index) => ({ index, cpu })),
+    [cpuSlots],
+  );
+
   const statCards = useMemo(
     () => [
-      {
-        label: "Registered users",
-        value: formatNumber(totals.users_registered),
-        icon: "group",
-        tone: "violet" as const,
-      },
-      {
-        label: "Public messages",
-        value: formatNumber(totals.public_messages),
-        icon: "forum",
-        tone: "sky" as const,
-      },
-      {
-        label: "Direct messages",
-        value: formatNumber(totals.dm_messages),
-        icon: "chat",
-        tone: "mint" as const,
-      },
-      {
-        label: "Attachments",
-        value: formatNumber(totals.message_files),
-        icon: "attach_file",
-        tone: "peach" as const,
-      },
+      { label: "Registered users", value: formatNumber(totals.users_registered), icon: "group" },
+      { label: "Public messages", value: formatNumber(totals.public_messages), icon: "forum" },
+      { label: "Direct messages", value: formatNumber(totals.dm_messages), icon: "chat" },
+      { label: "Attachments", value: formatNumber(totals.message_files), icon: "attach_file" },
     ],
     [totals],
   );
 
-  const greeting = session?.username ? `Welcome back, ${session.username}` : "Welcome";
-
   return (
     <div className={page.page}>
       <PageHeader
-        title={greeting}
+        title={`Welcome back, ${displayName}`}
         subtitle={
           connected ? (
             <span className={styles.live}>
               <span className={styles.liveDot} aria-hidden />
-              Live metrics connected
+              Live metrics · 60s CPU window
             </span>
           ) : (
             <span className={styles.live}>
-              <LoadingIndicator /> Connecting to metrics…
+              <LoadingIndicator /> Connecting…
             </span>
           )
         }
       />
 
       <p className={page.hint}>
-        Instance overview — counts refresh from the database; host stats stream over WebSocket.
+        Counts refresh from the database; host stats stream over WebSocket.
       </p>
 
       <div className={styles.stats}>
         {statCards.map((card) => (
-          <StatCard
-            key={card.label}
-            label={card.label}
-            value={card.value}
-            icon={card.icon}
-            tone={card.tone}
-          />
+          <StatCard key={card.label} label={card.label} value={card.value} icon={card.icon} />
         ))}
       </div>
 
-      <motion.section className={`${page.surfaceCard} ${styles.chartPanel}`} layout>
-        <motion.div
-          className={styles.chartHead}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.25 }}
-        >
+      <section className={`${page.surfaceCard} ${styles.chartPanel}`}>
+        <div className={styles.chartHead}>
           <div>
             <h2 className={styles.chartTitle}>CPU usage</h2>
-            <p className={page.muted}>Rolling samples from the metrics WebSocket</p>
+            <p className={page.muted}>Sliding 60-second window (newest on the right)</p>
           </div>
-          <motion.div className={styles.hostPills} layout>
+          <div className={styles.hostPills}>
             {[
               { label: "CPU", value: host.cpu },
               { label: "Memory", value: host.mem },
@@ -181,23 +169,23 @@ export function DashboardPage() {
                 {item.label} {item.value.toFixed(0)}%
               </span>
             ))}
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
         <div className={styles.chartWrap}>
           <ResponsiveContainer width="100%" height={280}>
-            <AreaChart data={cpuSeries}>
+            <AreaChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id="cpuFill" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="var(--md-sys-color-primary)" stopOpacity={0.4} />
+                  <stop offset="0%" stopColor="var(--md-sys-color-primary)" stopOpacity={0.35} />
                   <stop offset="100%" stopColor="var(--md-sys-color-primary)" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid
                 strokeDasharray="4 4"
-                stroke="color-mix(in srgb, var(--md-sys-color-outline) 20%, transparent)"
+                stroke="color-mix(in srgb, var(--md-sys-color-outline-variant) 35%, transparent)"
                 vertical={false}
               />
-              <XAxis dataKey="t" hide />
+              <XAxis dataKey="index" type="number" domain={[0, CPU_WINDOW - 1]} hide />
               <YAxis
                 domain={[0, 100]}
                 unit="%"
@@ -205,7 +193,7 @@ export function DashboardPage() {
                 tick={{ fontSize: 12, fill: chartTick }}
               />
               <Tooltip
-                formatter={(v) => [`${v}%`, "CPU"]}
+                formatter={(v) => (v == null ? ["—", "CPU"] : [`${v}%`, "CPU"])}
                 contentStyle={{
                   background: "var(--md-sys-color-surface-container-high)",
                   border: "1px solid color-mix(in srgb, var(--md-sys-color-outline-variant) 50%, transparent)",
@@ -215,15 +203,20 @@ export function DashboardPage() {
               />
               <Area
                 type="monotone"
-                dataKey="v"
+                dataKey="cpu"
                 stroke="var(--md-sys-color-primary)"
                 strokeWidth={2}
                 fill="url(#cpuFill)"
+                connectNulls={false}
+                isAnimationActive={false}
+                animationDuration={0}
+                dot={false}
+                activeDot={{ r: 4 }}
               />
             </AreaChart>
           </ResponsiveContainer>
         </div>
-      </motion.section>
+      </section>
     </div>
   );
 }

@@ -36,9 +36,7 @@ export function LoginPage() {
     <div className={styles.page}>
       <section className={styles.hero} aria-hidden>
         <div className={styles.heroInner}>
-          <span className={styles.heroMark}>
-            <span className="material-symbols-rounded">forum</span>
-          </span>
+          <img className={styles.heroMark} src="/logo-square.png" width={52} height={52} alt="" />
           <h1 className={styles.heroTitle}>Operate your instance with confidence</h1>
           <p className={styles.heroCopy}>
             Users, moderation, compliance exports, and live health metrics in one console built for

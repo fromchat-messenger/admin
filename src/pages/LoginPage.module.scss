@@ -30,19 +30,12 @@
 }
 
 .heroMark {
+  display: block;
   width: 3.25rem;
   height: 3.25rem;
   border-radius: 16px;
-  display: grid;
-  place-items: center;
   margin-bottom: 1.5rem;
-  background: color-mix(in srgb, #fff 12%, transparent);
-  border: 1px solid color-mix(in srgb, #fff 18%, transparent);
-
-  span {
-    font-size: 1.65rem;
-    color: #fff;
-  }
+  object-fit: cover;
 }
 
 .heroTitle {

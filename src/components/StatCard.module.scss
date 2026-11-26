@@ -3,25 +3,12 @@
   padding: 1.15rem 1.2rem 1.2rem;
   border-radius: var(--admin-card-radius);
   box-shadow: var(--admin-card-shadow);
-  border: 1px solid color-mix(in srgb, var(--md-sys-color-outline) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--md-sys-color-outline-variant) 40%, transparent);
+  background: var(--md-sys-color-surface-container-high);
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
   min-height: 7.5rem;
-  overflow: hidden;
-
-  &[data-tone="peach"] {
-    background: var(--admin-stat-peach);
-  }
-  &[data-tone="mint"] {
-    background: var(--admin-stat-mint);
-  }
-  &[data-tone="sky"] {
-    background: var(--admin-stat-sky);
-  }
-  &[data-tone="violet"] {
-    background: var(--admin-stat-violet);
-  }
 }
 
 .iconWrap {
@@ -30,20 +17,19 @@
   border-radius: 14px;
   display: grid;
   place-items: center;
-  background: color-mix(in srgb, var(--md-sys-color-surface-container-highest) 70%, transparent);
+  background: var(--md-sys-color-primary-container);
   margin-bottom: 0.35rem;
 
   span {
     font-size: 1.35rem;
-    color: var(--md-sys-color-primary);
+    color: var(--md-sys-color-on-primary-container);
   }
 }
 
 .label {
   margin: 0;
   font-size: 0.82rem;
-  color: var(--md-sys-color-on-surface);
-  opacity: 0.72;
+  color: var(--md-sys-color-on-surface-variant);
 }
 
 .value {

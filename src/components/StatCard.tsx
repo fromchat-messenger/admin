@@ -5,13 +5,12 @@ type StatCardProps = {
   label: string;
   value: ReactNode;
   icon: string;
-  tone?: "peach" | "mint" | "sky" | "violet";
   hint?: string;
 };
 
-export function StatCard({ label, value, icon, tone = "violet", hint }: StatCardProps) {
+export function StatCard({ label, value, icon, hint }: StatCardProps) {
   return (
-    <article className={styles.card} data-tone={tone}>
+    <article className={styles.card}>
       <div className={styles.iconWrap}>
         <span className="material-symbols-rounded" aria-hidden>
           {icon}

@@ -2,7 +2,7 @@
   display: grid;
   grid-template-columns: 1fr;
   min-height: 100dvh;
-  background: var(--md-sys-color-surface-container-low);
+  background: var(--md-sys-color-surface);
 
   @media (min-width: 900px) {
     grid-template-columns: var(--admin-sidebar-width) 1fr;
@@ -12,10 +12,10 @@
 .sidebar {
   display: none;
   flex-direction: column;
-  background: var(--admin-sidebar-bg);
-  color: var(--admin-sidebar-fg);
-  border-right: 1px solid var(--admin-sidebar-border);
-  padding: 1.25rem 0.85rem 1rem;
+  background: var(--md-sys-color-surface-container);
+  color: var(--md-sys-color-on-surface);
+  border-right: 1px solid color-mix(in srgb, var(--md-sys-color-outline-variant) 55%, transparent);
+  padding: 1.1rem 0.75rem 1rem;
   position: sticky;
   top: 0;
   height: 100dvh;
@@ -29,28 +29,21 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.35rem 0.65rem 1.25rem;
+  padding: 0.25rem 0.4rem 1.1rem;
 }
 
-.brandMark {
-  width: 2.65rem;
-  height: 2.65rem;
+.brandLogo {
+  width: 2.75rem;
+  height: 2.75rem;
   border-radius: 14px;
-  display: grid;
-  place-items: center;
-  background: linear-gradient(145deg, var(--md-sys-color-primary), color-mix(in srgb, var(--md-sys-color-primary) 55%, #000));
-
-  span {
-    font-size: 1.35rem;
-    color: #fff;
-  }
+  object-fit: cover;
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--md-sys-color-shadow) 18%, transparent);
 }
 
 .brandText {
   display: flex;
   flex-direction: column;
   gap: 0.1rem;
-  overflow: hidden;
 }
 
 .brandName {
@@ -63,78 +56,25 @@
   font-size: 0.72rem;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: var(--admin-sidebar-muted);
+  color: var(--md-sys-color-on-surface-variant);
 }
 
 .sideNav {
   flex: 1;
   overflow: auto;
-  padding-right: 0.15rem;
-}
-
-.navGroup {
-  margin-bottom: 1.25rem;
-}
-
-.groupLabel {
-  display: block;
-  padding: 0 0.85rem 0.45rem;
-  font-size: 0.68rem;
-  font-weight: 500;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--admin-sidebar-muted);
-}
-
-.navList {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-}
-
-.navLink {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.65rem 0.85rem;
-  border-radius: 12px;
-  font-size: 0.92rem;
-  color: var(--admin-sidebar-muted);
-  transition: background 0.15s ease, color 0.15s ease;
-
-  span.material-symbols-rounded {
-    font-size: 1.35rem;
-  }
-
-  &:hover {
-    background: color-mix(in srgb, #fff 6%, transparent);
-    color: var(--admin-sidebar-fg);
-  }
-}
-
-.navLinkActive {
-  background: var(--admin-sidebar-active);
-  color: #fff;
-  font-weight: 500;
-
-  span.material-symbols-rounded {
-    color: color-mix(in srgb, var(--md-sys-color-primary) 40%, #fff);
-  }
+  padding-right: 0.1rem;
 }
 
 .sidebarFoot {
   padding-top: 0.75rem;
-  border-top: 1px solid var(--admin-sidebar-border);
+  border-top: 1px solid color-mix(in srgb, var(--md-sys-color-outline-variant) 45%, transparent);
 }
 
 .sidebarUser {
   display: flex;
   align-items: center;
   gap: 0.65rem;
-  padding: 0.5rem 0.65rem;
+  padding: 0.5rem 0.45rem;
 }
 
 .sidebarUserMeta {
@@ -154,7 +94,7 @@
 
 .sidebarUserRole {
   font-size: 0.72rem;
-  color: var(--admin-sidebar-muted);
+  color: var(--md-sys-color-on-surface-variant);
 }
 
 .main {
@@ -162,6 +102,7 @@
   flex-direction: column;
   min-width: 0;
   min-height: 100dvh;
+  background: var(--md-sys-color-surface-container-low);
 }
 
 .topbar {
@@ -174,22 +115,18 @@
   gap: 1rem;
   min-height: var(--admin-topbar-height);
   padding: 0 1.25rem;
-  background: color-mix(in srgb, var(--md-sys-color-surface-container-low) 92%, transparent);
-  color: var(--md-sys-color-on-surface);
+  background: color-mix(in srgb, var(--md-sys-color-surface-container-low) 94%, transparent);
   backdrop-filter: blur(12px);
-  border-bottom: 1px solid color-mix(in srgb, var(--md-sys-color-outline) 12%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--md-sys-color-outline-variant) 45%, transparent);
 }
 
 .topbarStart {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
   min-width: 0;
 }
 
 .crumb {
   margin: 0;
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   font-weight: 500;
   letter-spacing: -0.02em;
   color: var(--md-sys-color-on-surface);
@@ -198,51 +135,7 @@
 .topbarEnd {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-}
-
-.iconBtn {
-  width: 2.5rem;
-  height: 2.5rem;
-  border: 0;
-  border-radius: 12px;
-  display: none;
-  place-items: center;
-  background: var(--md-sys-color-surface-container-high);
-  border: 1px solid color-mix(in srgb, var(--md-sys-color-outline-variant) 40%, transparent);
-  color: var(--md-sys-color-on-surface);
-  cursor: pointer;
-
-  @media (min-width: 640px) {
-    display: grid;
-  }
-}
-
-.profileChip {
-  display: none;
-  align-items: center;
-  gap: 0.65rem;
-  padding: 0.35rem 0.75rem 0.35rem 0.4rem;
-  border-radius: 999px;
-  background: var(--md-sys-color-surface-container-high);
-  border: 1px solid color-mix(in srgb, var(--md-sys-color-outline-variant) 45%, transparent);
-
-  @media (min-width: 720px) {
-    display: flex;
-  }
-}
-
-.profileName {
-  display: block;
-  font-size: 0.82rem;
-  font-weight: 500;
-  line-height: 1.2;
-}
-
-.profileRole {
-  display: block;
-  font-size: 0.7rem;
-  color: var(--md-sys-color-on-surface-variant);
+  gap: 0.35rem;
 }
 
 .content {
@@ -269,7 +162,7 @@
   padding: 0.4rem 0.35rem calc(0.4rem + env(safe-area-inset-bottom));
   background: color-mix(in srgb, var(--md-sys-color-surface-container) 95%, transparent);
   backdrop-filter: blur(16px);
-  border-top: 1px solid color-mix(in srgb, var(--md-sys-color-outline) 18%, transparent);
+  border-top: 1px solid color-mix(in srgb, var(--md-sys-color-outline-variant) 45%, transparent);
 
   @media (min-width: 900px) {
     display: none;

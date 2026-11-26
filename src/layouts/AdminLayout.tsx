@@ -1,15 +1,14 @@
-import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import Button from "m3-expressive-react/Button";
+import IconButton from "m3-expressive-react/IconButton";
 import { useAuth } from "@/auth/AuthContext";
 import { useAdminTheme } from "@/theme/AdminTheme";
 import { pageTransition } from "@/motion/spring";
 import { UserAvatar } from "@/components/UserAvatar";
+import { SidebarNav, type SidebarNavItem } from "@/components/SidebarNav";
 import styles from "./AdminLayout.module.scss";
 
-type NavItem = { to: string; icon: string; label: string };
-
-const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
+const NAV_GROUPS: { label: string; items: SidebarNavItem[] }[] = [
   {
     label: "Workspace",
     items: [
@@ -50,78 +49,42 @@ export function AdminLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const pageTitle = ROUTE_TITLES[location.pathname] ?? "Admin";
-
-  const mobileNav: NavItem[] = NAV_GROUPS.flatMap((group) => group.items);
+  const mobileNav = NAV_GROUPS.flatMap((group) => group.items);
 
   return (
     <div className={styles.shell}>
       <aside className={styles.sidebar}>
-        <motion.div
-          className={styles.brand}
-          initial={{ opacity: 0, x: -8 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={pageTransition}
-        >
-          <span className={styles.brandMark}>
-            <span className="material-symbols-rounded">forum</span>
-          </span>
-          <motion.div
-            className={styles.brandText}
-            initial={{ width: "auto", opacity: 1 }}
-            animate={{ width: "auto", opacity: 1 }}
-            transition={pageTransition}
-          >
+        <motion.div className={styles.brand} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={pageTransition}>
+          <img className={styles.brandLogo} src="/logo-square.png" width={44} height={44} alt="" />
+          <div className={styles.brandText}>
             <span className={styles.brandName}>FromChat</span>
             <span className={styles.brandTag}>Admin</span>
-          </motion.div>
+          </div>
         </motion.div>
 
         <nav className={styles.sideNav} aria-label="Main">
           {NAV_GROUPS.map((group) => (
-            <motion.div
+            <SidebarNav
               key={group.label}
-              className={styles.navGroup}
-              layout
-              transition={pageTransition}
-            >
-              <span className={styles.groupLabel}>{group.label}</span>
-              <ul className={styles.navList}>
-                {group.items.map((item) => (
-                  <li key={item.to}>
-                    <NavLink
-                      to={item.to}
-                      className={({ isActive }) =>
-                        isActive ? `${styles.navLink} ${styles.navLinkActive}` : styles.navLink
-                      }
-                    >
-                      <span className="material-symbols-rounded" aria-hidden>
-                        {item.icon}
-                      </span>
-                      <span>{item.label}</span>
-                    </NavLink>
-                  </li>
-                ))}
-              </ul>
-            </motion.div>
+              label={group.label}
+              items={group.items}
+              activePath={location.pathname}
+            />
           ))}
         </nav>
 
         <div className={styles.sidebarFoot}>
-          <div className={styles.sidebarUser}>
+          <motion.div className={styles.sidebarUser} layout transition={pageTransition}>
             <UserAvatar name={session?.username ?? "Admin"} size="sm" />
             <div className={styles.sidebarUserMeta}>
               <span className={styles.sidebarUserName}>{session?.username}</span>
               <span className={styles.sidebarUserRole}>Administrator</span>
             </div>
-          </div>
+          </motion.div>
         </div>
       </aside>
 
-      <motion.div
-        className={styles.main}
-        layout
-        transition={pageTransition}
-      >
+      <div className={styles.main}>
         <header className={styles.topbar}>
           <div className={styles.topbarStart}>
             <h2 className={styles.crumb}>{pageTitle}</h2>
@@ -132,34 +95,32 @@ export function AdminLayout() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ ...pageTransition, delay: 0.05 }}
           >
-            <button type="button" className={styles.iconBtn} aria-label="Notifications">
-              <span className="material-symbols-rounded">notifications</span>
-            </button>
-            <button
-              type="button"
-              className={styles.iconBtn}
+            <IconButton
+              variant="tonal"
+              icon={<span className="material-symbols-rounded">notifications</span>}
+              aria-label="Notifications"
+            />
+            <IconButton
+              variant="tonal"
+              icon={
+                <span className="material-symbols-rounded">{mode === "dark" ? "light_mode" : "dark_mode"}</span>
+              }
               aria-label={mode === "dark" ? "Switch to light theme" : "Switch to dark theme"}
               onClick={toggleMode}
-            >
-              <span className="material-symbols-rounded">{mode === "dark" ? "light_mode" : "dark_mode"}</span>
-            </button>
-            <div className={styles.profileChip}>
-              <UserAvatar name={session?.username ?? "Admin"} size="sm" />
-              <div>
-                <span className={styles.profileName}>{session?.username}</span>
-                <span className={styles.profileRole}>Owner</span>
-              </div>
-            </div>
-            <Button variant="text" onClick={logout}>
-              Sign out
-            </Button>
+            />
+            <IconButton
+              variant="tonal"
+              icon={<span className="material-symbols-rounded">logout</span>}
+              aria-label="Sign out"
+              onClick={logout}
+            />
           </motion.div>
         </header>
 
         <motion.main
           className={styles.content}
           key={location.pathname}
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={pageTransition}
         >
@@ -183,7 +144,7 @@ export function AdminLayout() {
             </button>
           ))}
         </nav>
-      </motion.div>
+      </div>
     </div>
   );
 }
