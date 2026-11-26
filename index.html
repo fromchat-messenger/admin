@@ -3,8 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
     <title>FromChat Admin</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="stylesheet" href="/boot-splash.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -17,6 +19,27 @@
     />
   </head>
   <body>
+    <div
+      id="boot-splash"
+      class="boot-splash"
+      role="status"
+      aria-live="polite"
+      aria-busy="true"
+      aria-label="Loading FromChat Admin"
+    >
+      <svg class="boot-splash__ring" viewBox="0 0 48 48" aria-hidden="true">
+        <circle class="boot-splash__track" cx="24" cy="24" r="20" fill="none" stroke-width="4" />
+        <circle
+          class="boot-splash__arc"
+          cx="24"
+          cy="24"
+          r="20"
+          fill="none"
+          stroke-width="4"
+          stroke-linecap="round"
+        />
+      </svg>
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

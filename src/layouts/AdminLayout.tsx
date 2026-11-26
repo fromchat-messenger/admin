@@ -136,25 +136,25 @@ function AdminLayoutShell() {
         </div>
       </aside>
 
+      <AnimatePresence initial={false}>
+        {busy ? (
+          <motion.div
+            key="main-pane-busy"
+            className={styles.shellOverlay}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ ...pageTransition, mass: 0.5 }}
+            role="status"
+            aria-live="polite"
+            aria-busy
+          >
+            <LoadingIndicator size={72} color="var(--md-sys-color-primary)" aria-label={label} />
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+
       <div className={styles.main}>
-        <AnimatePresence initial={false}>
-          {busy ? (
-            <motion.div
-              key="main-pane-busy"
-              className={styles.mainOverlay}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ ...pageTransition, mass: 0.5 }}
-              role="status"
-              aria-live="polite"
-              aria-busy
-            >
-              <LoadingIndicator size={32} color="var(--md-sys-color-primary)" aria-label={label} />
-              <p className={styles.mainOverlayLabel}>{label}</p>
-            </motion.div>
-          ) : null}
-        </AnimatePresence>
         <header className={styles.topbar}>
           <div className={styles.topbarStart}>
             <h2 className={styles.crumb}>{pageTitle}</h2>
