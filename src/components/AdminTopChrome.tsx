@@ -1,4 +1,3 @@
-import Button from "m3-expressive-react/Button";
 import { AdminProfileMenu } from "@/components/AdminProfileMenu";
 import styles from "./AdminTopChrome.module.scss";
 
@@ -17,32 +16,23 @@ export function AdminTopChrome({
   onToggleTheme,
   onSignOut,
 }: AdminTopChromeProps) {
-  const themeLabel = mode === "dark" ? "Light theme" : "Dark theme";
-  const themeIcon = mode === "dark" ? "light_mode" : "dark_mode";
-
   return (
     <header className={styles.chrome}>
-      <div className={styles.leading}>
-        <Button
-          className={styles.themeToggle}
-          variant="tonal"
-          size="sm"
-          onClick={onToggleTheme}
-          startIcon={<span className="material-symbols-rounded">{themeIcon}</span>}
-        >
-          {themeLabel}
-        </Button>
-
-        <div className={styles.brand}>
-          <img className={styles.brandLogo} src="/logo-square.png" width={40} height={40} alt="" />
-          <div className={styles.brandWords}>
-            <div className={styles.brandName}>FromChat</div>
-            <div className={styles.brandAdmin}>Admin</div>
-          </div>
+      <div className={styles.brand}>
+        <img className={styles.brandLogo} src="/logo-square.png" width={40} height={40} alt="" />
+        <div className={styles.brandWords}>
+          <div className={styles.brandName}>FromChat</div>
+          <div className={styles.brandAdmin}>Admin</div>
         </div>
       </div>
 
-      <AdminProfileMenu username={username} userId={userId} onSignOut={onSignOut} />
+      <AdminProfileMenu
+        username={username}
+        userId={userId}
+        mode={mode}
+        onToggleTheme={onToggleTheme}
+        onSignOut={onSignOut}
+      />
     </header>
   );
 }

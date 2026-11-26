@@ -7,8 +7,8 @@ type AdminProfileMenuProps = {
   username: string;
   userId: number;
   onSignOut: () => void;
-  mode?: "light" | "dark";
-  onToggleTheme?: () => void;
+  mode: "light" | "dark";
+  onToggleTheme: () => void;
 };
 
 export function AdminProfileMenu({
@@ -19,7 +19,6 @@ export function AdminProfileMenu({
   onToggleTheme,
 }: AdminProfileMenuProps) {
   const navigate = useNavigate();
-  const showTheme = mode != null && onToggleTheme != null;
   const themeLabel = mode === "dark" ? "Light theme" : "Dark theme";
   const themeIcon = mode === "dark" ? "light_mode" : "dark_mode";
 
@@ -29,17 +28,14 @@ export function AdminProfileMenu({
 
   return (
     <div className={styles.toolbar}>
-      {showTheme ? (
-        <Button
-          className={styles.themeToggle}
-          variant="tonal"
-          size="sm"
-          onClick={onToggleTheme}
-          startIcon={<span className="material-symbols-rounded">{themeIcon}</span>}
-        >
-          {themeLabel}
-        </Button>
-      ) : null}
+      <Button
+        variant="text"
+        size="sm"
+        onClick={onToggleTheme}
+        startIcon={<span className="material-symbols-rounded">{themeIcon}</span>}
+      >
+        {themeLabel}
+      </Button>
 
       <button
         type="button"
