@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import Button from "m3-expressive-react/Button";
+import IconButton from "m3-expressive-react/IconButton";
 import { UserAvatar } from "@/components/UserAvatar";
 import styles from "./AdminProfileMenu.module.scss";
 
@@ -28,14 +29,13 @@ export function AdminProfileMenu({
 
   return (
     <div className={styles.toolbar}>
-      <Button
-        variant="text"
+      <IconButton
+        variant="standard"
         size="sm"
+        aria-label={themeLabel}
         onClick={onToggleTheme}
-        startIcon={<span className="material-symbols-rounded">{themeIcon}</span>}
-      >
-        {themeLabel}
-      </Button>
+        icon={<span className="material-symbols-rounded">{themeIcon}</span>}
+      />
 
       <button
         type="button"

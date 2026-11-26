@@ -137,6 +137,14 @@ function AdminLayoutShell() {
         }
       }}
     >
+      <AdminTopChrome
+        username={session?.username ?? "Admin"}
+        userId={session?.userId ?? 1}
+        mode={mode}
+        onToggleTheme={toggleMode}
+        onSignOut={signOut}
+      />
+
       <NavigationRail
         className={styles.rail}
         variant={railVariant}
@@ -154,14 +162,6 @@ function AdminLayoutShell() {
           />
         ))}
       </NavigationRail>
-
-      <AdminTopChrome
-        username={session?.username ?? "Admin"}
-        userId={session?.userId ?? 1}
-        mode={mode}
-        onToggleTheme={toggleMode}
-        onSignOut={signOut}
-      />
 
       <header className={styles.mobileChrome}>
         <div className={styles.mobileBrand}>
