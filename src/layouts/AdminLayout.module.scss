@@ -41,6 +41,19 @@
   --_pill-w: calc(100% - 24px);
 }
 
+.rail[data-variant="collapsed"] :global([class*="_header_"]),
+.rail[data-variant="collapsed"] :global([class*="_footer_"]) {
+  align-items: center;
+  padding-inline: 0;
+  width: 100%;
+}
+
+.rail[data-variant="collapsed"] :global([class*="_footer_"]) [class*="_root_"] {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
 .brand {
   display: flex;
   flex-direction: column;
@@ -50,6 +63,10 @@
   width: 100%;
   padding-block: 0.15rem 0.45rem;
   text-align: center;
+}
+
+.rail[data-variant="collapsed"] .brandText {
+  display: none;
 }
 
 .brandLogo {

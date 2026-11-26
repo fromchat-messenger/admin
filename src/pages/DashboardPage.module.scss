@@ -47,6 +47,9 @@
 }
 
 .hostPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   padding: 0.35rem 0.75rem;
   border-radius: 999px;
   font-size: 0.78rem;
@@ -54,6 +57,11 @@
   background: var(--md-sys-color-surface-container-high);
   color: var(--md-sys-color-on-surface);
   border: 1px solid color-mix(in srgb, var(--md-sys-color-outline-variant) 40%, transparent);
+}
+
+.hostPillIcon {
+  font-size: 1rem;
+  color: var(--md-sys-color-on-surface-variant);
 }
 
 .chartWrap {

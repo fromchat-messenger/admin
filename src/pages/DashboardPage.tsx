@@ -146,10 +146,6 @@ export function DashboardPage() {
         }
       />
 
-      <p className={page.hint}>
-        Counts refresh from the database; host stats stream over WebSocket.
-      </p>
-
       <div className={styles.stats}>
         {statCards.map((card) => (
           <StatCard key={card.label} label={card.label} value={card.value} icon={card.icon} />
@@ -158,17 +154,17 @@ export function DashboardPage() {
 
       <section className={`${page.surfaceCard} ${styles.chartPanel}`}>
         <div className={styles.chartHead}>
-          <div>
-            <h2 className={styles.chartTitle}>CPU usage</h2>
-            <p className={page.muted}>Sliding 60-second window (newest on the right)</p>
-          </div>
+          <h2 className={styles.chartTitle}>CPU usage</h2>
           <div className={styles.hostPills}>
             {[
-              { label: "CPU", value: host.cpu },
-              { label: "Memory", value: host.mem },
-              { label: "Disk", value: host.disk },
+              { label: "CPU", value: host.cpu, icon: "speed" },
+              { label: "Memory", value: host.mem, icon: "memory" },
+              { label: "Disk", value: host.disk, icon: "hard_drive" },
             ].map((item) => (
               <span key={item.label} className={styles.hostPill}>
+                <span className={`material-symbols-rounded ${styles.hostPillIcon}`} aria-hidden>
+                  {item.icon}
+                </span>
                 {item.label} {item.value.toFixed(0)}%
               </span>
             ))}
