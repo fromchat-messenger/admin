@@ -249,8 +249,6 @@ export function AccountProfileDialog({ userId, open, onClose, onProfileUpdated }
     return rows;
   }, [profile, usernameVisible]);
 
-  const title = mode === "edit" ? "Edit profile" : displayLabel || "Profile";
-
   function handleShellClose() {
     if (mode === "edit") {
       setMode("view");
@@ -264,19 +262,28 @@ export function AccountProfileDialog({ userId, open, onClose, onProfileUpdated }
       <Dialog
         open={open}
         onClose={handleShellClose}
-        fullScreen
-        title={title}
-        closeLabel="Close profile"
+        className={styles.profileDialogSurface}
+        data-account-profile-dialog=""
+        title={mode === "edit" ? "Edit profile" : undefined}
         actions={
           mode === "edit" ? (
-            <IconButton
-              variant="standard"
-              aria-label="Reset changes"
-              disabled={!editDirty || saving}
-              onClick={resetEditFields}
-              icon={<span className="material-symbols-rounded">restart_alt</span>}
-            />
-          ) : undefined
+            <>
+              <IconButton
+                variant="standard"
+                aria-label="Reset changes"
+                disabled={!editDirty || saving}
+                onClick={resetEditFields}
+                icon={<span className="material-symbols-rounded">restart_alt</span>}
+              />
+              <Button variant="filled" disabled={!canSaveEdit} onClick={() => void saveEdit()}>
+                Save
+              </Button>
+            </>
+          ) : (
+            <Button variant="text" onClick={handleShellClose}>
+              Close
+            </Button>
+          )
         }
       >
         {mode === "edit" ? (
@@ -316,11 +323,6 @@ export function AccountProfileDialog({ userId, open, onClose, onProfileUpdated }
                 </div>
                 {saveError ? <p className={styles.emptyState}>{saveError}</p> : null}
               </div>
-            </div>
-            <div className={styles.editBottom}>
-              <Button variant="filled" style={{ width: "100%" }} disabled={!canSaveEdit} onClick={() => void saveEdit()}>
-                Save
-              </Button>
             </div>
           </div>
         ) : (

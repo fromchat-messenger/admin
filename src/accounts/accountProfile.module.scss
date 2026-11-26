@@ -1,28 +1,49 @@
+:global([data-open]:has([data-account-profile-dialog]) > [class*="_scrim_"]) {
+  background-color: color-mix(in srgb, var(--md-sys-color-scrim) 20%, transparent) !important;
+  backdrop-filter: blur(20px) saturate(1.06);
+  -webkit-backdrop-filter: blur(20px) saturate(1.06);
+  transition:
+    opacity 0.45s cubic-bezier(0.2, 0, 0, 1),
+    backdrop-filter 0.45s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.profileDialogSurface {
+  --md-dialog-container-max-width: min(600px, calc(100vw - 3rem));
+  --md-dialog-container-min-width: min(280px, calc(100vw - 3rem));
+  max-height: min(88vh, 52rem) !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  background: var(--md-sys-color-surface) !important;
+  transform-origin: center center;
+  transition:
+    opacity 0.4s cubic-bezier(0.2, 0.9, 0.2, 1),
+    transform 0.55s cubic-bezier(0.34, 1.25, 0.32, 1) !important;
+}
+
 .shell {
   display: flex;
   flex-direction: column;
-  min-height: 100%;
-  background: var(--md-sys-color-background);
+  max-height: min(88vh, 52rem);
   color: var(--md-sys-color-on-surface);
 }
 
 .scroll {
   flex: 1;
+  min-height: 0;
   overflow: auto;
   overscroll-behavior: contain;
 }
 
 .column {
   width: 100%;
-  max-width: 600px;
   margin: 0 auto;
-  padding: 0 0 5rem;
+  padding: 0 0 1rem;
 }
 
 .avatarWrap {
   display: flex;
   justify-content: center;
-  padding-top: 1.5rem;
+  padding-top: 0.75rem;
   padding-bottom: 0.75rem;
 }
 
@@ -139,29 +160,17 @@
   padding: 0.5rem 1rem;
 }
 
-.editBottom {
-  position: sticky;
-  bottom: 0;
-  padding: 1rem;
-  background: color-mix(in srgb, var(--md-sys-color-surface-container) 88%, transparent);
-  backdrop-filter: blur(12px);
-  border-top: 1px solid color-mix(in srgb, var(--md-sys-color-outline-variant) 35%, transparent);
-}
-
-.editTopBar {
+.dialogTitleRow {
   display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  min-height: 3.5rem;
-  padding: 0.25rem 0.5rem 0.25rem 0.25rem;
-  border-bottom: 1px solid color-mix(in srgb, var(--md-sys-color-outline-variant) 35%, transparent);
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 1.25rem 1.25rem 0;
 }
 
-.editTopTitle {
-  flex: 1;
+.dialogTitleRow h2 {
   margin: 0;
-  font: var(--md-sys-typescale-title-large);
-  font-size: 1.375rem;
+  font: var(--md-sys-typescale-headline-small);
 }
 
 .emptyState {
