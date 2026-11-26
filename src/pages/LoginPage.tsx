@@ -41,7 +41,7 @@ export function LoginPage() {
           </p>
         </header>
 
-        <form className={styles.form} data-md-motion-scheme="standard" onSubmit={onSubmit}>
+        <form className={styles.form} onSubmit={onSubmit}>
           <TextField
             className={styles.field}
             variant="outlined"

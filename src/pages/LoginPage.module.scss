@@ -79,10 +79,10 @@
     min-height: 52px;
     --_shape-round: calc(52px * 0.38);
     --_shape-square: calc(52px * 0.38);
-    --_shape-pressed: calc(52px * 0.32);
-    --_shape-morph-duration: 0s;
+    --_shape-pressed: calc(52px * 0.38);
     border-radius: calc(52px * 0.38);
+    transition:
+      box-shadow var(--md-sys-motion-duration-short3) var(--md-sys-motion-easing-standard),
+      background-color var(--md-sys-motion-duration-short3) var(--md-sys-motion-easing-standard);
   }
-
-  transition: box-shadow var(--md-sys-motion-duration-short3) var(--md-sys-motion-easing-standard);
 }
