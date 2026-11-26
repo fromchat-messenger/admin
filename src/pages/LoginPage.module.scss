@@ -79,7 +79,7 @@
 .submit {
   width: 100%;
   margin-top: 0.35rem;
-  /* Android `ActionButton` min height 52dp; `CtaShape` percent = 38. */
+  /* Android `ActionButton` 52dp tall; keep `md` type scale (not `sm`). */
   --_height: 52px;
   --_shape-round: calc(var(--_height) * 0.38);
   --_shape-square: calc(var(--_height) * 0.38);
