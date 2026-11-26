@@ -1,4 +1,11 @@
-.root {
+.shell {
+  display: grid;
+  overflow: hidden;
+  min-height: 0;
+  contain: layout paint;
+}
+
+.clip {
   overflow: hidden;
   min-height: 0;
 }
