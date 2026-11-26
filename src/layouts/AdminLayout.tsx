@@ -72,14 +72,11 @@ function AdminLayoutShell() {
   const location = useLocation();
   const fromLogin = Boolean((location.state as { fromLogin?: boolean } | null)?.fromLogin);
   const clearedLoginStateRef = useRef(false);
-  const entryPathRef = useRef(location.pathname);
   const sawPaneBusyRef = useRef(false);
-  const [paneOverlayAllowed, setPaneOverlayAllowed] = useState(true);
-  const [entryOverlayVisible, setEntryOverlayVisible] = useState(true);
-  const [entryOverlayFading, setEntryOverlayFading] = useState(false);
+  const [paneOverlayVisible, setPaneOverlayVisible] = useState(true);
+  const [paneOverlayFading, setPaneOverlayFading] = useState(false);
   const pageTitle = ROUTE_TITLES[location.pathname] ?? "Admin";
-  const showEntryOverlay =
-    paneOverlayAllowed && (entryOverlayVisible || entryOverlayFading);
+  const showPaneOverlay = paneOverlayVisible || paneOverlayFading;
   const mobileNav = NAV_GROUPS.flatMap((group) => group.items);
 
   useEffect(() => {
@@ -87,15 +84,13 @@ function AdminLayoutShell() {
   }, [fromLogin]);
 
   useEffect(() => {
-    if (location.pathname !== entryPathRef.current) {
-      setPaneOverlayAllowed(false);
-      setEntryOverlayVisible(false);
-      setEntryOverlayFading(false);
-    }
+    sawPaneBusyRef.current = false;
+    setPaneOverlayVisible(true);
+    setPaneOverlayFading(false);
   }, [location.pathname]);
 
   useEffect(() => {
-    if (!paneOverlayAllowed || entryOverlayFading || !entryOverlayVisible) {
+    if (!paneOverlayVisible || paneOverlayFading) {
       return;
     }
     if (busy) {
@@ -103,23 +98,34 @@ function AdminLayoutShell() {
       return;
     }
     if (sawPaneBusyRef.current) {
-      setEntryOverlayFading(true);
+      setPaneOverlayFading(true);
     }
-  }, [busy, entryOverlayFading, entryOverlayVisible, paneOverlayAllowed]);
+  }, [busy, paneOverlayFading, paneOverlayVisible]);
 
-  function finishEntryOverlayFade() {
-    setEntryOverlayVisible(false);
-    setEntryOverlayFading(false);
-    setPaneOverlayAllowed(false);
+  useEffect(() => {
+    if (!paneOverlayVisible || paneOverlayFading || busy) {
+      return;
+    }
+    const timeout = window.setTimeout(() => {
+      if (!sawPaneBusyRef.current && paneOverlayVisible && !paneOverlayFading) {
+        setPaneOverlayFading(true);
+      }
+    }, 64);
+    return () => window.clearTimeout(timeout);
+  }, [location.pathname, busy, paneOverlayFading, paneOverlayVisible]);
+
+  function finishPaneOverlayFade() {
+    setPaneOverlayVisible(false);
+    setPaneOverlayFading(false);
   }
 
   useEffect(() => {
-    if (!entryOverlayFading) {
+    if (!paneOverlayFading) {
       return;
     }
-    const timeout = window.setTimeout(finishEntryOverlayFade, 480);
+    const timeout = window.setTimeout(finishPaneOverlayFade, 480);
     return () => window.clearTimeout(timeout);
-  }, [entryOverlayFading]);
+  }, [paneOverlayFading]);
 
   function signOut() {
     logout();
@@ -196,20 +202,20 @@ function AdminLayoutShell() {
         </header>
 
         <div className={styles.contentStage}>
-          {showEntryOverlay ? (
+          {showPaneOverlay ? (
             <div
               className={
-                entryOverlayFading
+                paneOverlayFading
                   ? `${styles.mainPaneOverlay} ${styles.mainPaneOverlayHide}`
                   : styles.mainPaneOverlay
               }
               role="status"
               aria-live="polite"
-              aria-busy={!entryOverlayFading}
+              aria-busy={!paneOverlayFading}
               aria-label={label}
               onTransitionEnd={(event) => {
-                if (entryOverlayFading && event.propertyName === "opacity") {
-                  finishEntryOverlayFade();
+                if (paneOverlayFading && event.propertyName === "opacity") {
+                  finishPaneOverlayFade();
                 }
               }}
             >
