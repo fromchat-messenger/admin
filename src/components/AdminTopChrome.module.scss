@@ -2,14 +2,14 @@
   display: none;
   grid-area: chrome;
   align-items: center;
-  gap: 0;
+  gap: 1rem;
   min-height: 3.5rem;
   padding: 0.35rem 1rem 0.35rem 0;
   background: var(--md-sys-color-surface-container-low);
 
   @media (min-width: 900px) {
-    display: grid;
-    grid-template-columns: 96px minmax(0, 1fr) auto;
+    display: flex;
+    justify-content: space-between;
     width: 100%;
     min-height: var(--admin-chrome-height, 3.5rem);
     max-height: var(--admin-chrome-height, 3.5rem);
@@ -17,15 +17,11 @@
   }
 }
 
-.logoSlot {
-  display: none;
-
-  @media (min-width: 900px) {
-    display: block;
-    width: 96px;
-    flex-shrink: 0;
-    padding: 0;
-  }
+.brandLead {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-width: 0;
 }
 
 .brandLogo {
@@ -33,7 +29,7 @@
   flex-shrink: 0;
   width: 2.5rem;
   height: 2.5rem;
-  margin-inline: calc((96px - 2.5rem) / 2) 0;
+  margin-inline-start: calc((96px - 2.5rem) / 2);
   border-radius: 13px;
   object-fit: cover;
   box-shadow: 0 2px 8px color-mix(in srgb, var(--md-sys-color-shadow) 18%, transparent);
@@ -46,7 +42,6 @@
   align-items: baseline;
   gap: 0.75rem;
   min-width: 0;
-  padding-inline: 0.65rem 0;
   filter: drop-shadow(0 0 16px rgba(147, 51, 234, 0.45));
 }
 

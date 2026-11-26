@@ -10,13 +10,12 @@ type AdminTopChromeProps = {
 export function AdminTopChrome({ username, userId, onSignOut }: AdminTopChromeProps) {
   return (
     <header className={styles.chrome}>
-      <div className={styles.logoSlot}>
+      <div className={styles.brandLead}>
         <img className={styles.brandLogo} src="/logo-square.png" width={40} height={40} alt="" />
-      </div>
-
-      <div className={styles.brandWords}>
-        <p className={styles.brandName}>FromChat</p>
-        <p className={styles.brandAdmin}>Admin</p>
+        <div className={styles.brandWords}>
+          <p className={styles.brandName}>FromChat</p>
+          <p className={styles.brandAdmin}>Admin</p>
+        </div>
       </div>
 
       <AdminProfileMenu username={username} userId={userId} onSignOut={onSignOut} />
