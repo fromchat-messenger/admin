@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import IconButton from "m3-expressive-react/IconButton";
@@ -75,6 +75,7 @@ function AdminLayoutShell() {
   const sawPaneBusyRef = useRef(false);
   const [paneOverlayVisible, setPaneOverlayVisible] = useState(true);
   const [paneOverlayFading, setPaneOverlayFading] = useState(false);
+  const [paneContentRevealed, setPaneContentRevealed] = useState(false);
   const pageTitle = ROUTE_TITLES[location.pathname] ?? "Admin";
   const showPaneOverlay = paneOverlayVisible || paneOverlayFading;
   const mobileNav = NAV_GROUPS.flatMap((group) => group.items);
@@ -83,14 +84,20 @@ function AdminLayoutShell() {
     clearedLoginStateRef.current = false;
   }, [fromLogin]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     sawPaneBusyRef.current = false;
     setPaneOverlayVisible(true);
     setPaneOverlayFading(false);
+    setPaneContentRevealed(false);
+
+    const frame = requestAnimationFrame(() => {
+      setPaneContentRevealed(true);
+    });
+    return () => cancelAnimationFrame(frame);
   }, [location.pathname]);
 
   useEffect(() => {
-    if (!paneOverlayVisible || paneOverlayFading) {
+    if (!paneOverlayVisible || paneOverlayFading || !paneContentRevealed) {
       return;
     }
     if (busy) {
@@ -100,10 +107,10 @@ function AdminLayoutShell() {
     if (sawPaneBusyRef.current) {
       setPaneOverlayFading(true);
     }
-  }, [busy, paneOverlayFading, paneOverlayVisible]);
+  }, [busy, paneContentRevealed, paneOverlayFading, paneOverlayVisible]);
 
   useEffect(() => {
-    if (!paneOverlayVisible || paneOverlayFading || busy) {
+    if (!paneOverlayVisible || paneOverlayFading || busy || !paneContentRevealed) {
       return;
     }
     const timeout = window.setTimeout(() => {
@@ -112,7 +119,7 @@ function AdminLayoutShell() {
       }
     }, 64);
     return () => window.clearTimeout(timeout);
-  }, [location.pathname, busy, paneOverlayFading, paneOverlayVisible]);
+  }, [location.pathname, busy, paneContentRevealed, paneOverlayFading, paneOverlayVisible]);
 
   function finishPaneOverlayFade() {
     setPaneOverlayVisible(false);
@@ -232,7 +239,7 @@ function AdminLayoutShell() {
               exit={{ opacity: 0 }}
               transition={pageShift}
             >
-              <Outlet />
+              {paneContentRevealed ? <Outlet key={location.pathname} /> : null}
             </motion.main>
           </AnimatePresence>
         </div>
