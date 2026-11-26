@@ -23,4 +23,22 @@
     height: 2.65rem;
     font-size: 0.85rem;
   }
+
+  &[data-size="lg"] {
+    width: 6.5rem;
+    height: 6.5rem;
+    font-size: 1.65rem;
+    border-radius: 999px;
+  }
+
+  &[data-size="xl"] {
+    width: 6rem;
+    height: 6rem;
+    font-size: 1.5rem;
+    border-radius: 999px;
+  }
+
+  &[data-shape="circle"] {
+    border-radius: 999px;
+  }
 }

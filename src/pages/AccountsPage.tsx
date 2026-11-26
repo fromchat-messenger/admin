@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import SearchBar from "m3-expressive-react/SearchBar";
 import { useAuth } from "@/auth/AuthContext";
 import { getPageCache, setPageCache } from "@/cache/pageDataCache";
 import { useMarkRouteCachedWhenReady } from "@/cache/useMarkRouteCached";
 import { useMainPaneBusy } from "@/layout/MainPaneBusy";
 import { apiFetch } from "@/api/client";
+import { AccountProfileDialog } from "@/accounts/AccountProfileDialog";
 import { PageHeader } from "@/components/PageHeader";
 import { StatusChip } from "@/components/StatusChip";
 import { TablePager } from "@/components/TablePager";
@@ -67,7 +68,7 @@ type AccountsListCache = { rows: UserRow[]; total: number };
 
 export function AccountsPage() {
   const { session } = useAuth();
-  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [offset, setOffset] = useState(0);
   const [q, setQ] = useState("");
   const [query, setQuery] = useState("");
@@ -140,8 +141,15 @@ export function AccountsPage() {
     return () => window.clearTimeout(timeout);
   }, [q]);
 
+  const dialogUserId = Number(searchParams.get("user"));
+  const profileOpen = Number.isFinite(dialogUserId) && dialogUserId > 0;
+
   function openUser(userId: number) {
-    navigate(`/accounts/${userId}`, { state: { aospForward: true } });
+    setSearchParams({ user: String(userId) }, { replace: false });
+  }
+
+  function closeProfile() {
+    setSearchParams({}, { replace: true });
   }
 
   return (
@@ -229,6 +237,13 @@ export function AccountsPage() {
         onNext={() => setOffset(offset + limit)}
       />
       {message ? <p className={page.message}>{message}</p> : null}
+
+      <AccountProfileDialog
+        userId={profileOpen ? dialogUserId : null}
+        open={profileOpen}
+        onClose={closeProfile}
+        onProfileUpdated={() => void load()}
+      />
     </div>
   );
 }

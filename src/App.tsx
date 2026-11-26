@@ -1,19 +1,22 @@
 import "m3-expressive-react/styles.css";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes, useParams } from "react-router-dom";
 import { AdminThemeProvider } from "@/theme/AdminTheme";
 import { AuthProvider, useAuth } from "@/auth/AuthContext";
 import { AdminLayout } from "@/layouts/AdminLayout";
 import { LoginRoot } from "@/pages/LoginPage";
 import { DashboardPage } from "@/pages/DashboardPage";
-import { AccountsLayout } from "@/layouts/AccountsLayout";
 import { AccountsPage } from "@/pages/AccountsPage";
-import { AccountUserPage } from "@/pages/AccountUserPage";
 import { FilesPage } from "@/pages/FilesPage";
 import { ModerationPage } from "@/pages/ModerationPage";
 import { CompliancePage } from "@/pages/CompliancePage";
 import { SettingsPage } from "@/pages/SettingsPage";
 import { ToolsPage } from "@/pages/ToolsPage";
 import "@/styles/global.scss";
+
+function LegacyAccountRedirect() {
+  const { userId } = useParams();
+  return <Navigate to={`/accounts?user=${userId ?? ""}`} replace />;
+}
 
 function RequireAdmin({ children }: { children: React.ReactNode }) {
   const { session } = useAuth();
@@ -40,10 +43,8 @@ export default function App() {
             >
               <Route index element={<Navigate to="/dashboard" replace />} />
               <Route path="dashboard" element={<DashboardPage />} />
-              <Route path="accounts" element={<AccountsLayout />}>
-                <Route index element={<AccountsPage />} />
-                <Route path=":userId" element={<AccountUserPage />} />
-              </Route>
+              <Route path="accounts" element={<AccountsPage />} />
+              <Route path="accounts/:userId" element={<LegacyAccountRedirect />} />
               <Route path="files" element={<FilesPage />} />
               <Route path="moderation" element={<ModerationPage />} />
               <Route path="compliance" element={<CompliancePage />} />

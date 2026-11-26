@@ -26,7 +26,7 @@ export function AdminProfileMenu({
   const themeIcon = mode === "dark" ? "light_mode" : "dark_mode";
 
   function openAccount() {
-    navigate(`/accounts/${userId}`, { state: { aospForward: true } });
+    navigate(`/accounts?user=${userId}`);
   }
 
   return (
