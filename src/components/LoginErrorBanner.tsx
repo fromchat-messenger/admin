@@ -3,22 +3,30 @@ import { useLayoutEffect, useRef, useState } from "react";
 import { pageTransition } from "@/motion/spring";
 import styles from "./LoginErrorBanner.module.scss";
 
-const shellSpring = {
+const shellEnterSpring = {
   ...pageTransition,
   bounce: 0,
 };
 
-const bodySpring = {
+const shellExitSpring = {
+  type: "spring" as const,
+  stiffness: 720,
+  damping: 44,
+  mass: 0.4,
+  bounce: 0,
+};
+
+const bodyEnterSpring = {
   ...pageTransition,
   mass: 0.65,
   bounce: 0,
 };
 
 const bodyExitSpring = {
-  ...pageTransition,
-  stiffness: 460,
-  damping: 36,
-  mass: 0.55,
+  type: "spring" as const,
+  stiffness: 920,
+  damping: 54,
+  mass: 0.32,
   bounce: 0,
 };
 
@@ -32,7 +40,6 @@ export function LoginErrorBanner({ message }: LoginErrorBannerProps) {
 
   useLayoutEffect(() => {
     if (!message) {
-      setHeight(0);
       return;
     }
     const measure = () => {
@@ -46,15 +53,20 @@ export function LoginErrorBanner({ message }: LoginErrorBannerProps) {
   }, [message]);
 
   return (
-    <AnimatePresence initial={false}>
+    <AnimatePresence
+      initial={false}
+      onExitComplete={() => {
+        setHeight(0);
+      }}
+    >
       {message ? (
         <motion.div
           key={message}
           className={styles.shell}
           initial={{ height: 0 }}
           animate={{ height }}
-          exit={{ height: 0, transition: shellSpring }}
-          transition={shellSpring}
+          exit={{ height: 0, transition: shellExitSpring }}
+          transition={shellEnterSpring}
         >
           <div ref={innerRef} className={styles.inner}>
             <motion.p
@@ -64,7 +76,7 @@ export function LoginErrorBanner({ message }: LoginErrorBannerProps) {
               animate={{
                 opacity: 1,
                 y: 0,
-                transition: { ...bodySpring, opacity: { ...bodySpring, delay: 0.03 } },
+                transition: { ...bodyEnterSpring, opacity: { ...bodyEnterSpring, delay: 0.03 } },
               }}
               exit={{ opacity: 0, y: -4, transition: bodyExitSpring }}
             >
