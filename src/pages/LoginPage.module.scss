@@ -68,21 +68,3 @@
   color: var(--md-sys-color-error);
   font-size: 0.875rem;
 }
-
-.submit {
-  width: 100%;
-  margin-top: 0.35rem;
-  /* Android `ActionButton` 52dp; override m3 `[data-size=md]` (56px). */
-  &[data-size="md"] {
-    --_height: 52px;
-    height: 52px;
-    min-height: 52px;
-    --_shape-round: calc(52px * 0.38);
-    --_shape-square: calc(52px * 0.38);
-    --_shape-pressed: calc(52px * 0.38);
-    border-radius: calc(52px * 0.38);
-    transition:
-      box-shadow var(--md-sys-motion-duration-short3) var(--md-sys-motion-easing-standard),
-      background-color var(--md-sys-motion-duration-short3) var(--md-sys-motion-easing-standard);
-  }
-}

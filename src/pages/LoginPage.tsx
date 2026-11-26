@@ -1,9 +1,8 @@
 import { FormEvent, useState } from "react";
 import { Navigate } from "react-router-dom";
 import TextField from "m3-expressive-react/TextField";
-import Button from "m3-expressive-react/Button";
-import LoadingIndicator from "m3-expressive-react/LoadingIndicator";
 import { useAuth } from "@/auth/AuthContext";
+import { LoginSubmitButton } from "@/components/LoginSubmitButton";
 import styles from "./LoginPage.module.scss";
 
 export function LoginPage() {
@@ -19,6 +18,9 @@ export function LoginPage() {
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
+    if (loading) {
+      return;
+    }
     setError(null);
     setLoading(true);
     try {
@@ -76,16 +78,7 @@ export function LoginPage() {
               {error}
             </p>
           ) : null}
-          <Button
-            type="submit"
-            variant="filled"
-            size="md"
-            shape="square"
-            disabled={loading}
-            className={styles.submit}
-          >
-            {loading ? <LoadingIndicator /> : "Continue"}
-          </Button>
+          <LoginSubmitButton loading={loading} />
         </form>
       </div>
     </div>
