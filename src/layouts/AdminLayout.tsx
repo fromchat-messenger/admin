@@ -178,7 +178,6 @@ function AdminLayoutShell() {
             mode={mode}
             onToggleTheme={toggleMode}
             onSignOut={signOut}
-            compact={!railExpanded}
           />
         }
       >

@@ -6,11 +6,11 @@
 .trigger {
   display: flex;
   align-items: center;
-  gap: 0.65rem;
   width: 100%;
-  padding: 0.45rem 0.35rem;
+  min-height: 3.5rem;
+  padding: 0.4rem 0.35rem;
   border: 0;
-  border-radius: 12px;
+  border-radius: 999px;
   background: transparent;
   color: inherit;
   text-align: left;
@@ -25,12 +25,23 @@
   }
 }
 
+.morphSpacer {
+  flex: calc(1 - var(--_t, 0)) 1 0;
+  min-width: 0;
+  max-width: calc((1 - var(--_t, 0)) * 3rem);
+}
+
 .meta {
   display: flex;
-  flex: 1;
+  flex: calc(var(--_t, 0) * 1) 1 auto;
   flex-direction: column;
   gap: 0.05rem;
   min-width: 0;
+  max-width: calc(var(--_t, 0) * 11rem);
+  margin-inline-start: calc(0.65rem * var(--_t, 0));
+  opacity: var(--_t, 0);
+  overflow: hidden;
+  pointer-events: none;
 }
 
 .name {
@@ -44,13 +55,6 @@
 .role {
   font-size: 0.72rem;
   color: var(--md-sys-color-on-surface-variant);
-}
-
-.triggerCompact {
-  justify-content: center;
-  width: auto;
-  margin-inline: auto;
-  padding: 0.35rem;
 }
 
 .panel {

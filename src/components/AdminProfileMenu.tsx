@@ -7,16 +7,9 @@ type AdminProfileMenuProps = {
   mode: "light" | "dark";
   onToggleTheme: () => void;
   onSignOut: () => void;
-  compact?: boolean;
 };
 
-export function AdminProfileMenu({
-  username,
-  mode,
-  onToggleTheme,
-  onSignOut,
-  compact = false,
-}: AdminProfileMenuProps) {
+export function AdminProfileMenu({ username, mode, onToggleTheme, onSignOut }: AdminProfileMenuProps) {
   const menuId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
@@ -55,20 +48,20 @@ export function AdminProfileMenu({
     <div className={styles.root} ref={rootRef}>
       <button
         type="button"
-        className={compact ? `${styles.trigger} ${styles.triggerCompact}` : styles.trigger}
+        className={styles.trigger}
         aria-label="Account menu"
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={menuId}
         onClick={() => setOpen((value) => !value)}
       >
+        <span className={styles.morphSpacer} aria-hidden />
         <UserAvatar name={username} size="sm" />
-        {compact ? null : (
-          <div className={styles.meta}>
-            <span className={styles.name}>{username}</span>
-            <span className={styles.role}>Administrator</span>
-          </div>
-        )}
+        <div className={styles.meta}>
+          <span className={styles.name}>{username}</span>
+          <span className={styles.role}>Administrator</span>
+        </div>
+        <span className={styles.morphSpacer} aria-hidden />
       </button>
 
       {open ? (
