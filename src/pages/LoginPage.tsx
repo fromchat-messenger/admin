@@ -46,7 +46,11 @@ export function LoginPage() {
             className={styles.field}
             variant="outlined"
             label="Username"
-            startIcon={<span className="material-symbols-rounded">person</span>}
+            startIcon={
+              <span className="material-symbols-rounded" aria-hidden>
+                person
+              </span>
+            }
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             autoComplete="username"
@@ -57,7 +61,11 @@ export function LoginPage() {
             variant="outlined"
             label="Password"
             type="password"
-            startIcon={<span className="material-symbols-rounded">lock</span>}
+            startIcon={
+              <span className="material-symbols-rounded" aria-hidden>
+                lock
+              </span>
+            }
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             autoComplete="current-password"
