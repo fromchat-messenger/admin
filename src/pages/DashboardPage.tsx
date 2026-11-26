@@ -42,7 +42,7 @@ function pushCpuSample(prev: (number | null)[], sample: number): (number | null)
   const filled = prev.filter((value) => value != null).length;
   if (filled < CPU_WINDOW) {
     const next = [...prev];
-    next[CPU_WINDOW - filled - 1] = sample;
+    next[filled] = sample;
     return next;
   }
   return [...prev.slice(1), sample];
